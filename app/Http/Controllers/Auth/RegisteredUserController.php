@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -31,20 +33,42 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['in:patient,doctor,admin'],
         ]);
-
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'address' => $request->address,
+            'role' => $request->role,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
+        if ($user->role == 'patient') {
+
+            Patient::create([
+                'user_id' => $user->id,
+            ]);
+        } elseif ($user->role == 'doctor') {
+            Doctor::create([
+                'user_id' => $user->id,
+            ]);
+        }
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        if ($user->role == 'patient') {
+
+            return redirect(route('patients.index', absolute: false));
+
+        } elseif ($user->role == 'doctor') {
+            return redirect(route('doctors.index', absolute: false));
+        }
+
+        return redirect(route('patients.index', absolute: false));
     }
 }
