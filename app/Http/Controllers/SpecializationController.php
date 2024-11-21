@@ -13,10 +13,6 @@ class SpecializationController extends Controller
     public function index()
     {
         $specializations = Specialization::all();
-
-        // $doctors = User::where('role', 'doctor')->with('specialization')->get();
-        // dd($doctors->toArray());
-
         return view('specializations.index',compact('specializations'));
     }
 
@@ -33,7 +29,10 @@ class SpecializationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+    Specialization::create([
+            'name' => $request->name,
+        ]);
+        return to_route('specializations.index');
     }
 
     /**

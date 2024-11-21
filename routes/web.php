@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::Resource('appointments',AppointmentController::class);
     Route::Resource('admins',AdminController::class);
     Route::Resource('specializations',SpecializationController::class);
-    Route::post('userregister', [RegisteredUserController::class, 'store'])->name('admin.patient.store');
+    Route::post('userregister', [RegisteredUserController::class, 'store'])->name('admin.user.store');
 });
 
 require __DIR__.'/auth.php';

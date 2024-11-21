@@ -19,7 +19,7 @@
         <!-- Create Patient Button -->
         <div class="mb-1 text-left">
             <a href="{{route('patients.create')}}" class="inline-block bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-700">
-                Create Patient
+                Add New Patient
             </a>
         </div>
 

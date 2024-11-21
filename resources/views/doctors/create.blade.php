@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Patient</title>
+    <title>Create Doctor</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -15,9 +15,9 @@
     <!-- Centering the form using Flexbox -->
     <div class="flex justify-center items-center h-full">
         <div class="w-full max-w-lg p-6 bg-white shadow-md rounded-lg">
-            <h1 class="text-2xl font-bold mb-6 text-center">Create New Patient</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center">Create New Doctor</h1>
 
-            <!-- Patient Create Form -->
+            <!-- Doctor Create Form -->
             <form method="POST" action="{{ route('admin.user.store') }}">
                 @csrf
                 <!-- Name -->
@@ -38,14 +38,25 @@
                     <input type="text" name="phone" id="phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
+                <!-- Specialization Dropdown -->
+                <div class="mb-4">
+                    <label for="specialization_id" class="block text-sm font-medium text-gray-700">Specialization</label>
+                    <select name="specialization_id" id="specialization_id" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="" disabled selected>Select Specialization</option>
+                        @foreach($specializations as $specialization)
+                            <option value="{{ $specialization->id }}">{{ $specialization->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Address -->
                 <div class="mb-4">
                     <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                    <input type="text" name="address" id="address" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="address" id="address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <!-- Hidden Role -->
-                <input type="hidden" name="role" value="patient">
+                <input type="hidden" name="role" value="doctor">
 
                 <!-- Password -->
                 <div class="mb-4">
@@ -62,7 +73,7 @@
                 <!-- Submit Button -->
                 <div class="mb-4">
                     <button type="submit" class="w-full bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Create Patient
+                        Create Doctor
                     </button>
                 </div>
             </form>

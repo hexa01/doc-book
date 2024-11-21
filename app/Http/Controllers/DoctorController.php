@@ -26,7 +26,8 @@ class DoctorController extends Controller
      */
     public function create()
     {
-        //
+        $specializations = Specialization::all();
+        return view('doctors.create', compact('specializations'));
     }
 
     /**

@@ -34,6 +34,8 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'address' => ['string', 'max:255'],
+            'phone' => ['string', 'max:30'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['in:patient,doctor,admin'],
         ]);
@@ -51,30 +53,31 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
             ]);
         } elseif ($user->role == 'doctor') {
+            $specialization_id = NULL;
+            if ($request->has('specialization_id')) {
+                $specialization_id = $request->specialization_id;
+            }
             Doctor::create([
                 'user_id' => $user->id,
+                'specialization_id'  => $specialization_id,
             ]);
         } elseif ($user->role == 'admin') {
-
         }
-
-        event(new Registered($user));
-
-
         if (Auth::user()) {
-            return redirect(route('patients.index', absolute: false));
+            if ($user->role == 'patient') {
+                return redirect(route('patients.index', absolute: false));
+            } elseif ($user->role == 'doctor') {
+                return redirect(route('doctors.index', absolute: false));
+            }
+            return redirect(route('admins.index', absolute: false));
         }
-        
+
         event(new Registered($user));
         Auth::login($user);
         if ($user->role == 'patient') {
             return redirect(route('patients.index', absolute: false));
         } elseif ($user->role == 'doctor') {
-
-            Auth::login($user);
             return redirect(route('doctors.index', absolute: false));
         }
-
-        return redirect(route('patients.index', absolute: false));
     }
 }
