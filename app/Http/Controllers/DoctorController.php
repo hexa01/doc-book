@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Specialization;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class DoctorController extends Controller
@@ -12,7 +13,12 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        return view('doctors.index');
+        $doctors = User::where('role','doctor')->get();
+
+        // $doctors = User::where('role', 'doctor')->with('specialization')->get();
+        // dd($doctors->toArray());
+
+        return view('doctors.index',compact('doctors'));
     }
 
     /**
@@ -64,15 +70,6 @@ class DoctorController extends Controller
     }
     public function showSpecialization()
     {
-        // Specialization::query()->create([
-        //     'name'=> 'Cardiology'
-        // ]);
-        // Specialization::query()->create([
-        //     'name'=> 'Neurology'
-        // ]);
-        // Specialization::query()->create([
-        //     'name'=> 'Surgery'
-        // ]);
 
         $specializations = Specialization::all();
         return view('doctors.specialization', compact('specializations'));

@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Patient;
-use App\Models\User;
+use App\Models\Specialization;
 use Illuminate\Http\Request;
 
-class PatientController extends Controller
+class SpecializationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $patients = User::where('role','patient')->get();
-        // dd($patients->toArray());
-        return view('patients.index',compact('patients'));
+        $specializations = Specialization::all();
+
+        // $doctors = User::where('role', 'doctor')->with('specialization')->get();
+        // dd($doctors->toArray());
+
+        return view('specializations.index',compact('specializations'));
     }
 
     /**
@@ -38,9 +40,8 @@ class PatientController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {   
-
-        // return view('patients.index');
+    {
+        //
     }
 
     /**

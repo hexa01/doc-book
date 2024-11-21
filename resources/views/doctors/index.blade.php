@@ -1,121 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor's Appointment Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome for icons -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-        .container {
-            width: 90%;
-            margin: auto;
-            padding-top: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .status {
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: white;
-        }
-        .status.pending {
-            background-color: orange;
-        }
-        .status.completed {
-            background-color: green;
-        }
-        .status.cancelled {
-            background-color: red;
-        }
-        .action-btns {
-            display: flex;
-            gap: 10px;
-        }
-        .action-btns a {
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            color: white;
-        }
-        .action-btns .edit {
-            background-color: #007bff;
-        }
-        .action-btns .delete {
-            background-color: #dc3545;
-        }
-    </style>
+    <title>Doctor List</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
 
-<div class="container">
-    <h1>Doctor's Appointment Dashboard</h1>
+<body class="bg-gray-100">
 
-    <table>
-        <thead>
-            <tr>
-                <th>Patient Name</th>
-                <th>Appointment Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>John Doe</td>
-                <td>2024-11-22</td>
-                <td><span class="status pending">Pending</span></td>
-                <td class="action-btns">
-                    <a href="#" class="edit"><i class="fas fa-edit"></i> Edit</a>
-                    <a href="#" class="delete"><i class="fas fa-trash-alt"></i> Delete</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Jane Smith</td>
-                <td>2024-11-23</td>
-                <td><span class="status completed">Completed</span></td>
-                <td class="action-btns">
-                    <a href="#" class="edit"><i class="fas fa-edit"></i> Edit</a>
-                    <a href="#" class="delete"><i class="fas fa-trash-alt"></i> Delete</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Mary Johnson</td>
-                <td>2024-11-25</td>
-                <td><span class="status cancelled">Cancelled</span></td>
-                <td class="action-btns">
-                    <a href="#" class="edit"><i class="fas fa-edit"></i> Edit</a>
-                    <a href="#" class="delete"><i class="fas fa-trash-alt"></i> Delete</a>
-                </td>
-            </tr>
-            <!-- More rows can be added here -->
-        </tbody>
-    </table>
-</div>
+    <x-admin-nav> </x-admin-nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+        <h1 class="text-2xl font-bold mb-6">All Doctors</h1>
+
+        <!-- Doctors Table -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+                <thead>
+                    <tr class="bg-blue-600 text-white text-left">
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">Name</th>
+                        <th class="py-3 px-4">Specialization</th>
+                        <th class="py-3 px-4">Email</th>
+                        <th class="py-3 px-4">Phone</th>
+                        <th class="py-3 px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($doctors as $doctor)
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-3 px-4 border">{{ $loop->iteration }}</td>
+                        <td class="py-3 px-4 border">{{ $doctor->name }}</td>
+                        <td class="py-3 px-4 border">{{ $doctor->doctor->specialization->name ?? 'N/A' }}</td>
+                        <td class="py-3 px-4 border">{{ $doctor->email }}</td>
+                        <td class="py-3 px-4 border">{{ $doctor->phone }}</td>
+                        <td class="py-3 px-4 border">
+                            <!-- <a href="{{ route('doctors.show', $doctor->id) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">View</a> -->
+                            <a href="{{ route('doctors.edit', $doctor->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</a>
+                            <form method="POST" action="{{ route('doctors.destroy', $doctor->id) }}" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 
 </body>
+
 </html>

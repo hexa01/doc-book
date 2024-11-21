@@ -71,6 +71,6 @@ class RegisteredUserController extends Controller
             return redirect(route('doctors.index', absolute: false));
         }
 
-        return redirect(route('patients.index', absolute: false));
+        // return redirect(route('patients.index', absolute: false));
     }
 }

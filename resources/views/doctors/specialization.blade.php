@@ -36,7 +36,6 @@
         @endforeach
     </select>
 </div>
-
         <button type="submit">Submit</button>
     </form>
 </body>

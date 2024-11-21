@@ -5,6 +5,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SpecializationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::Resource('doctors',DoctorController::class);
     Route::Resource('appointments',AppointmentController::class);
     Route::Resource('admins',AdminController::class);
+    Route::Resource('specializations',SpecializationController::class);
 });
 
 require __DIR__.'/auth.php';
