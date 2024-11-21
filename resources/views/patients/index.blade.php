@@ -16,6 +16,13 @@
     <div class="container mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
         <h1 class="text-2xl font-bold mb-6">All Patients</h1>
 
+        <!-- Create Patient Button -->
+        <div class="mb-1 text-left">
+            <a href="{{route('patients.create')}}" class="inline-block bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-700">
+                Create Patient
+            </a>
+        </div>
+
         <!-- Patients Table -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">

@@ -37,7 +37,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['in:patient,doctor,admin'],
         ]);
-        
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -54,23 +54,27 @@ class RegisteredUserController extends Controller
             Doctor::create([
                 'user_id' => $user->id,
             ]);
-        }
-        elseif ($user->role == 'admin') {
+        } elseif ($user->role == 'admin') {
 
         }
 
         event(new Registered($user));
 
-        Auth::login($user);
 
-        if ($user->role == 'patient') {
-
+        if (Auth::user()) {
             return redirect(route('patients.index', absolute: false));
-
+        }
+        
+        event(new Registered($user));
+        Auth::login($user);
+        if ($user->role == 'patient') {
+            return redirect(route('patients.index', absolute: false));
         } elseif ($user->role == 'doctor') {
+
+            Auth::login($user);
             return redirect(route('doctors.index', absolute: false));
         }
 
-        // return redirect(route('patients.index', absolute: false));
+        return redirect(route('patients.index', absolute: false));
     }
 }

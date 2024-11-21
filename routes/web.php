@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -26,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::Resource('appointments',AppointmentController::class);
     Route::Resource('admins',AdminController::class);
     Route::Resource('specializations',SpecializationController::class);
+    Route::post('userregister', [RegisteredUserController::class, 'store'])->name('admin.patient.store');
 });
 
 require __DIR__.'/auth.php';
