@@ -47,7 +47,6 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
         if ($user->role == 'patient') {
-
             Patient::create([
                 'user_id' => $user->id,
             ]);
@@ -55,6 +54,9 @@ class RegisteredUserController extends Controller
             Doctor::create([
                 'user_id' => $user->id,
             ]);
+        }
+        elseif ($user->role == 'admin') {
+
         }
 
         event(new Registered($user));

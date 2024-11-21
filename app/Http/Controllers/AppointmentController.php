@@ -24,9 +24,10 @@ class AppointmentController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $doctors = Doctor::all();
+        $specialization_id = $request -> specialization;
+        $doctors = Doctor::where('specialization_id',$specialization_id)->get();
         return view('appointments.create',compact('doctors'));
     }
 
@@ -43,8 +44,8 @@ class AppointmentController extends Controller
             'appointment_date' => $request->appointment_date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-
         ]);
+        return to_route('appointments.index');
 
     }
 

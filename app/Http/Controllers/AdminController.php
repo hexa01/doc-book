@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Specialization;
 use Illuminate\Http\Request;
 
-class DoctorController extends Controller
+class AdminController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('doctors.index');
+        return view('admins.index');
     }
 
     /**
@@ -61,21 +60,5 @@ class DoctorController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-    public function showSpecialization()
-    {
-        // Specialization::query()->create([
-        //     'name'=> 'Cardiology'
-        // ]);
-        // Specialization::query()->create([
-        //     'name'=> 'Neurology'
-        // ]);
-        // Specialization::query()->create([
-        //     'name'=> 'Surgery'
-        // ]);
-
-        $specializations = Specialization::all();
-        return view('doctors.specialization', compact('specializations'));
-        // $speciality = $request -> speciality;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
@@ -19,8 +20,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::Resource('patients',PatientController::class);
+    Route::get('/specialization',[DoctorController::class, 'showSpecialization'])->name('doctor.specialization');
     Route::Resource('doctors',DoctorController::class);
     Route::Resource('appointments',AppointmentController::class);
+    Route::Resource('admins',AdminController::class);
 });
 
 require __DIR__.'/auth.php';

@@ -45,7 +45,7 @@
             <p>To book an appointment with your doctor, click the button below.</p>
             
             <!-- Book Appointment Button -->
-            <a href="{{route('appointments.create')}}" class="mt-4 inline-block bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-700">
+            <a href="{{route('doctor.specialization')}}" class="mt-4 inline-block bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-700">
                 Book an Appointment
             </a>
         </div>

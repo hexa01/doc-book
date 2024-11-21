@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,17 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $user = User::where('email',$request->email)->first();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if ($user->role == 'patient') {
+        return redirect()->intended(route('patients.index', absolute: false));
+        } elseif ($user->role == 'doctor') {
+            return redirect()->intended(route('doctors.index', absolute: false));
+        }
+        elseif ($user->role == 'admin') {
+
+            return redirect()->intended(route('admins.index', absolute: false));
+        }
     }
 
     /**
