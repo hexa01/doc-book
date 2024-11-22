@@ -1,88 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Appointments</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f7fc;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 30px;
-      background-color: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    h2 {
-      text-align: center;
-      color: #4CAF50;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
-    }
-    th, td {
-      padding: 12px;
-      text-align: center;
-    }
-    th {
-      background-color: #4CAF50;
-      color: white;
-    }
-    td {
-      background-color: #f9f9f9;
-    }
-    button {
-      background-color: #FF5722;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    button:hover {
-      background-color: #e64a19;
-    }
-  </style>
-</head>
-<body>
+@extends('layouts.patient-dashboard')
 
-  <div class="container">
-    <h2>Appointments List</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Appointment Date</th>
-          <th>Start Time</th>
-          <th>End Time</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach ($appointments as $appointment)
-          <tr>
-            <td>{{ $appointment->appointment_date }}</td>
-            <td>{{ $appointment->start_time }}</td>
-            <td>{{ $appointment->end_time }}</td>
-            <td>
-              <button>Edit</button>
-              <button>Delete</button>
-            </td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>
-  </div>
+@section('content')
+    <div class="container mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
+              <!-- Display Flash Message -->
+              @if(session('message'))
+            <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                {{ session('message') }}
+            </div>
+        @elseif(session('error'))
+            <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                {{ session('error') }}
+            </div>
+        @endif
 
-</body>
-</html>
+        <div class="mb-6">
+            <a href="{{ route('doctor.specialization') }}" 
+               class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                Book an Appointment
+            </a>
+        </div>
+
+        <h1 class="text-2xl font-semibold mb-6">My Appointments</h1>
+
+        <!-- Display all appointments in a table -->
+        <table class="min-w-full table-auto">
+            <thead>
+                <tr class="bg-gray-100 text-left">
+                    <th class="px-4 py-2">Doctor's Name</th>
+                    <th class="px-4 py-2">Specialization</th>
+                    <th class="px-4 py-2">Date</th>
+                    <th class="px-4 py-2">Start Time</th>
+                    <th class="px-4 py-2">End Time</th>
+                    <th class="px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($appointments as $appointment)
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ $appointment->doctor->user->name }}</td>
+                        <td class="px-4 py-2">{{ $appointment->doctor->specialization->name }}</td>
+                        <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d-m-Y') }}</td>
+                        <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</td>
+                        <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->end_time)->format('h:i A') }}</td>
+                        <td class="px-4 py-2 flex space-x-2">
+                            <a href="{{ route('appointments.edit', $appointment->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
+                            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endsection
