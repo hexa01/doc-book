@@ -1,10 +1,7 @@
-@extends('layouts.app')
-
-@section('content')
 <div class="container mx-auto px-4 py-6">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-700">Welcome, John Doe</h1>
+        <h1 class="text-2xl font-bold text-gray-700">Welcome, {{Auth::user()->name}}</h1>
         <a href="{{ route('appointments.create') }}" 
            class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
             Book Appointment
@@ -88,4 +85,3 @@
         </div>
     </div>
 </div>
-@endsection

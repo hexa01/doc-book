@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doctor;
 use App\Models\Specialization;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DoctorController extends Controller
 {
@@ -51,7 +53,11 @@ class DoctorController extends Controller
      */
     public function edit(string $id)
     {
-        //
+
+        $user = User::findOrFail($id);
+        $doctor = Doctor::where('user_id',$user->id)->first();
+        $specializations = Specialization::all();
+        return view('doctors.edit',compact('doctor','specializations'));
     }
 
     /**
@@ -59,7 +65,27 @@ class DoctorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // $user = User::findOrFail($id);
+        $doctor = Doctor::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:patients,email,' . $id,
+            'phone' => 'nullable|string|max:30',
+            'address' => 'nullable|string|max:255',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+            $input = $request->only(['name', 'email', 'phone', 'address']);
+            if ($request->filled('password')) {
+                $input['password'] = bcrypt($request->input('password'));
+            }
+    
+            $input = array_filter($input, fn($value) => !is_null($value) && $value !== '');
+    
+            $doctor->user->update($input);
+            $doctor->update([
+            'specialization_id' => $request->specialization_id,
+            ]);
+            return to_route('doctors.index');
     }
 
     /**
@@ -67,8 +93,16 @@ class DoctorController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $role = Auth::user()->role;
+        if ($role != 'admin'){
+            dd("Hello");
+        }
+        $user = User::findOrFail($id);
+        $user -> delete();
+        return to_route('doctors.index');
     }
+
+    //function for showing specialization while booking appointment
     public function showSpecialization()
     {
 

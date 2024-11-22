@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\Specialization;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -11,7 +14,12 @@ class AdminController extends Controller
      */
     public function index()
     {
-        return view('admins.index');
+        $patients_count = Patient::count();
+        $doctors_count = Doctor::count();
+        $specializations_count = Specialization::count();
+        // $admin_count remaining to fetch
+        $count_arr = [$patients_count,$doctors_count,$specializations_count];
+        return view('admins.index', compact('count_arr'));
     }
 
     /**

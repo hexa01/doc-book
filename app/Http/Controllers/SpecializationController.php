@@ -64,6 +64,9 @@ class SpecializationController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+
+        $specialization = Specialization::findOrFail($id);
+        $specialization->delete();
+        return to_route('specializations.index');
     }
 }

@@ -30,14 +30,11 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         $user = User::where('email',$request->email)->first();
 
-        if ($user->role == 'patient') {
-        return redirect()->intended(route('patients.index', absolute: false));
-        } elseif ($user->role == 'doctor') {
-            return redirect()->intended(route('doctors.index', absolute: false));
-        }
-        elseif ($user->role == 'admin') {
-
+        if ($user->role == 'admin') {
             return redirect()->intended(route('admins.index', absolute: false));
+        }
+        else{
+            return redirect()->intended(route('dashboard', absolute: false));
         }
     }
 
