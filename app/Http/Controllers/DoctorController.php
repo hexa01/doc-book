@@ -15,6 +15,7 @@ class DoctorController extends Controller
      */
     public function index()
     {
+        abort_if(!(Auth::user()->role == 'admin'), 404);
         $doctors = User::where('role','doctor')->get();
 
         // $doctors = User::where('role', 'doctor')->with('specialization')->get();
@@ -28,6 +29,7 @@ class DoctorController extends Controller
      */
     public function create()
     {
+        abort_if(!(Auth::user()->role == 'admin'), 404);
         $specializations = Specialization::all();
         return view('doctors.create', compact('specializations'));
     }
