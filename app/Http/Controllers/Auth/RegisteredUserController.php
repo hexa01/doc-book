@@ -75,9 +75,9 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
         Auth::login($user);
         if ($user->role == 'patient') {
-            return redirect(route('patients.dashboard', absolute: false));
+            return redirect(route('dashboard', absolute: false));
         } elseif ($user->role == 'doctor') {
-            return redirect(route('doctors.dashboard', absolute: false));
+            return redirect(route('dashboard', absolute: false));
         }
     }
 }

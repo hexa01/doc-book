@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         if ($user->role == 'admin') {
             return redirect()->intended(route('admins.index', absolute: false));
         }
-        else{
+        elseif($user->role == 'patient' || $user->role == 'doctor'){
             return redirect()->intended(route('dashboard', absolute: false));
         }
     }

@@ -1,5 +1,4 @@
-@extends('layouts.patient-dashboard')
-
+@extends('layouts.dashboard')
 @section('content')
 <div class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-6 py-6">
@@ -19,50 +18,66 @@
         <!-- Update Personal Details Section -->
         <div class="max-w-4xl bg-white p-8 shadow-md rounded-lg mb-10">
             <h2 class="text-xl font-semibold mb-4">Update Personal Details</h2>
-            <form action="{{ route('patients.update',[Auth::user()->id]) }}" method="POST" class="space-y-6">
-                @csrf
-                @method('PUT')
-                <!-- Name -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="name" name="name"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4"
-                        value="{{ old('name', $user->name) }}" required>
-                </div>
 
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" name="email"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4"
-                        value="{{ old('email', $user->email) }}" required>
-                </div>
+            @if(Auth::user()->role == 'patient')
+            <form action="{{ route('patients.update', [Auth::user()->id]) }}" method="POST" class="space-y-6">
+                @elseif(Auth::user()->role == 'doctor')
+                <form action="{{ route('doctors.update', [Auth::user()->id]) }}" method="POST" class="space-y-6">
+                    @endif
+                    @csrf
+                    @method('PUT')
 
-                <!-- Phone -->
-                <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                    <input type="text" id="phone" name="phone"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4"
-                        value="{{ old('phone', $user->phone) }}">
-                </div>
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                        <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4" required>
+                    </div>
 
-                <!-- Address -->
-                <div>
-                    <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                    <input type="text" id="address" name="address"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4"
-                        value="{{ old('address', $user->address) }}">
-                </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input
+                            type="email" id="email" name="email" value="{{ old('email', $user->email)}}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4"
+                            required>
+                    </div>
 
-                <!-- Update Button -->
-                <div>
-                    <button type="submit"
-                        class="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        Update Details
-                    </button>
-                </div>
-            </form>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input
+                            type="text" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4">
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input
+                            type="text" id="address" name="address" value="{{ old('address', $user->address) }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4">
+                    </div>
+
+                    <!-- Doctor-Specific Specialization Field -->
+                    @if(Auth::user()->role == 'doctor')
+                    <div>
+                        <label for="specialization" class="block text-sm font-medium text-gray-700">Specialization</label>
+                        <input
+                            type="text" id="specialization" name="specialization" value="{{ $user->doctor->specialization->name }}" readonly
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4 bg-gray-100">
+                        <p class="text-sm text-gray-500 mt-1">To change specialization, please contact the administrator.</p>
+                    </div>
+                    @endif
+
+                    <!-- Update Button -->
+                    <div>
+                        <button
+                            type="submit"
+                            class="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Update Details
+                        </button>
+                    </div>
+
+                </form>
         </div>
+
 
         <!-- Update Password Section -->
         <div class="max-w-4xl bg-white p-8 shadow-md rounded-lg mb-10">
@@ -111,9 +126,8 @@
         <!-- Delete Account Section -->
         <div class="max-w-4xl bg-white p-8 shadow-md rounded-lg">
             <h2 class="text-xl font-semibold mb-4 text-red-600">Danger Zone</h2>
-            <form action="" method="POST">
+            <form action="{{route('profile.delete.form')}}" method="GET">
                 @csrf
-                @method('DELETE')
                 <p class="mb-4 text-gray-700">
                     Deleting your account is permanent and cannot be undone. All your data will be lost.
                 </p>

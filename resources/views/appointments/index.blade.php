@@ -1,58 +1,9 @@
-@extends('layouts.patient-dashboard')
-
+@extends('layouts.dashboard')
 @section('content')
-    <div class="container mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
-              <!-- Display Flash Message -->
-              @if(session('message'))
-            <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
-                {{ session('message') }}
-            </div>
-        @elseif(session('error'))
-            <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <div class="mb-6">
-            <a href="{{ route('doctor.specialization') }}" 
-               class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-                Book an Appointment
-            </a>
-        </div>
-
-        <h1 class="text-2xl font-semibold mb-6">My Appointments</h1>
-
-        <!-- Display all appointments in a table -->
-        <table class="min-w-full table-auto">
-            <thead>
-                <tr class="bg-gray-100 text-left">
-                    <th class="px-4 py-2">Doctor's Name</th>
-                    <th class="px-4 py-2">Specialization</th>
-                    <th class="px-4 py-2">Date</th>
-                    <th class="px-4 py-2">Start Time</th>
-                    <th class="px-4 py-2">End Time</th>
-                    <th class="px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($appointments as $appointment)
-                    <tr class="border-b">
-                        <td class="px-4 py-2">{{ $appointment->doctor->user->name }}</td>
-                        <td class="px-4 py-2">{{ $appointment->doctor->specialization->name }}</td>
-                        <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d-m-Y') }}</td>
-                        <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</td>
-                        <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->end_time)->format('h:i A') }}</td>
-                        <td class="px-4 py-2 flex space-x-2">
-                            <a href="{{ route('appointments.edit', $appointment->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
-                            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+    @if(Auth::user()->role == 'patient')
+        
+        <x-patient-appointment :appointments="$appointments"></x-patient-appointment>
+    @elseif(Auth::user()->role == 'doctor')
+        <x-doctor-appointment :appointments="$appointments"></x-doctor-appointment>
+    @endif
 @endsection

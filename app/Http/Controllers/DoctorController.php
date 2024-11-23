@@ -7,6 +7,7 @@ use App\Models\Specialization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class DoctorController extends Controller
 {
@@ -29,8 +30,6 @@ class DoctorController extends Controller
      */
     public function create()
     {
-        abort_if(!(Auth::user()->role == 'admin'), 404);
-        $specializations = Specialization::all();
         return view('doctors.create', compact('specializations'));
     }
 
@@ -47,7 +46,7 @@ class DoctorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -55,7 +54,7 @@ class DoctorController extends Controller
      */
     public function edit(string $id)
     {
-
+        abort_if(!(Auth::user()->role == 'admin'), 404);
         $user = User::findOrFail($id);
         $doctor = Doctor::where('user_id',$user->id)->first();
         $specializations = Specialization::all();
@@ -69,6 +68,12 @@ class DoctorController extends Controller
     {
         // $user = User::findOrFail($id);
         $doctor = Doctor::findOrFail($id);
+        if (($request->filled('password') && (Auth::user()->role != 'admin'))) {
+
+            $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+        } else {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:patients,email,' . $id,
@@ -76,6 +81,12 @@ class DoctorController extends Controller
             'address' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
+        if ($request->filled('current_password')) {
+            if (!Hash::check($request->current_password, $doctor->user->password)) {
+                return back()->withErrors(['current_password' => 'The current password is incorrect.']);
+            }
+        }
+    }
             $input = $request->only(['name', 'email', 'phone', 'address']);
             if ($request->filled('password')) {
                 $input['password'] = bcrypt($request->input('password'));
@@ -84,6 +95,10 @@ class DoctorController extends Controller
             $input = array_filter($input, fn($value) => !is_null($value) && $value !== '');
     
             $doctor->user->update($input);
+            if (Auth::user()->role == 'doctor') {
+                session()->flash('message', 'Updated successfully!');
+                return to_route('profile.edit');
+            }
             $doctor->update([
             'specialization_id' => $request->specialization_id,
             ]);
@@ -95,21 +110,22 @@ class DoctorController extends Controller
      */
     public function destroy(string $id)
     {
-        $role = Auth::user()->role;
-        if ($role != 'admin'){
-            dd("Hello");
-        }
         $user = User::findOrFail($id);
-        $user -> delete();
-        return to_route('doctors.index');
+        if (Auth::user()->role == 'admin'){
+            $user->delete();
+            return to_route('patients.index');
+        }
+        elseif (Auth::user()->role == 'doctor'){
+        }
     }
 
-    //function for showing specialization while booking appointment
-    public function showSpecialization()
+    public function showPatients()
     {
-
-        $specializations = Specialization::all();
-        return view('doctors.specialization', compact('specializations'));
-        // $speciality = $request -> speciality;
+        abort_if(Auth::user()->role != 'doctor', 403);
+        $doctor = Auth::user()->doctor;
+        $appointments = $doctor->appointments()->with('patient')->get();
+        $patients = $appointments->pluck('patient')->unique('id');
+        return view('doctors.patients', compact('patients'));
     }
+
 }

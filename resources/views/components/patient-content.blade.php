@@ -1,9 +1,10 @@
+
 <div class="container mx-auto px-4 py-6">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-700">Welcome, {{Auth::user()->name}}</h1>
-        <a href="{{ route('doctor.specialization') }}" 
-           class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
+        <a href="{{ route('appointments.specialization') }}"
+            class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
             Book Appointment
         </a>
     </div>
@@ -13,9 +14,9 @@
         <!-- Upcoming Appointments Card -->
         <div class="bg-white shadow-md rounded-lg p-4">
             <h2 class="text-lg font-semibold text-gray-800">Upcoming Appointments</h2>
-            <p class="text-gray-600 mt-2">You have 2 upcoming appointments.</p>
-            <a href="{{ route('appointments.index') }}" 
-               class="text-blue-500 hover:underline mt-3 block">
+            <p class="text-gray-600 mt-2">You have {{$count}} upcoming appointments.</p>
+            <a href="{{ route('appointments.index') }}"
+                class="text-blue-500 hover:underline mt-3 block">
                 View All Appointments
             </a>
         </div>
@@ -24,8 +25,8 @@
         <div class="bg-white shadow-md rounded-lg p-4">
             <h2 class="text-lg font-semibold text-gray-800">Medical History</h2>
             <p class="text-gray-600 mt-2">View your past consultations and medical history.</p>
-            <a href="" 
-               class="text-blue-500 hover:underline mt-3 block">
+            <a href=""
+                class="text-blue-500 hover:underline mt-3 block">
                 View History
             </a>
         </div>
@@ -34,8 +35,8 @@
         <div class="bg-white shadow-md rounded-lg p-4">
             <h2 class="text-lg font-semibold text-gray-800">Your Profile</h2>
             <p class="text-gray-600 mt-2">Keep your contact information and medical details up to date.</p>
-            <a href="{{ route('profile.edit') }}" 
-               class="text-blue-500 hover:underline mt-3 block">
+            <a href="{{ route('profile.edit') }}"
+                class="text-blue-500 hover:underline mt-3 block">
                 Edit Profile
             </a>
         </div>
@@ -51,37 +52,42 @@
                         <th class="px-4 py-2 text-left text-gray-600">Date</th>
                         <th class="px-4 py-2 text-left text-gray-600">Doctor</th>
                         <th class="px-4 py-2 text-left text-gray-600">Specialization</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Time</th>
                         <th class="px-4 py-2 text-left text-gray-600">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Static Data for Recent Appointments -->
+                    @forelse($appointments as $appointment)
                     <tr>
-                        <td class="px-4 py-2 border-t text-gray-800">2024-11-25</td>
-                        <td class="px-4 py-2 border-t text-gray-800">Dr. Jane Smith</td>
-                        <td class="px-4 py-2 border-t text-gray-800">Cardiologist</td>
+                        <td class="px-4 py-2 border-t text-gray-800">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('Y-m-d') }}</td>
+                        <td class="px-4 py-2 border-t text-gray-800">{{ $appointment->doctor->user->name }}</td>
+                        <td class="px-4 py-2 border-t text-gray-800">{{ $appointment->doctor->specialization->name }}</td>
+                        <td class="px-4 py-2 border-t text-gray-800">{{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</td>
                         <td class="px-4 py-2 border-t text-gray-800">
-                            <span class="text-green-600">Confirmed</span>
+                            @php
+                            $status = $appointment->status;
+                            @endphp
+                            @if($status == 'booked' || $status == 'Booked')
+                            <span class="text-green-600">Booked</span>
+                            @elseif($status == 'completed')
+                            <span class="text-yellow-600">Completed</span>
+                            @elseif($status == 'missed')
+                            <span class="text-red-600">Missed</span>
+                            @else
+                            <span class="text-gray-600">{{ ucfirst($status) }}</span>
+                            @endif
                         </td>
                     </tr>
+                    @empty
                     <tr>
-                        <td class="px-4 py-2 border-t text-gray-800">2024-12-01</td>
-                        <td class="px-4 py-2 border-t text-gray-800">Dr. Mark Brown</td>
-                        <td class="px-4 py-2 border-t text-gray-800">Dermatologist</td>
-                        <td class="px-4 py-2 border-t text-gray-800">
-                            <span class="text-yellow-600">Pending</span>
+                        <td colspan="4" class="px-4 py-2 border-t text-gray-800 text-center">
+                            No recent appointments found.
                         </td>
                     </tr>
-                    <tr>
-                        <td class="px-4 py-2 border-t text-gray-800">2024-12-10</td>
-                        <td class="px-4 py-2 border-t text-gray-800">Dr. Lisa White</td>
-                        <td class="px-4 py-2 border-t text-gray-800">Neurologist</td>
-                        <td class="px-4 py-2 border-t text-gray-800">
-                            <span class="text-yellow-600">Pending</span>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
 </div>

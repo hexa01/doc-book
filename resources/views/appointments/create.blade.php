@@ -1,103 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.dashboard')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointment Creation Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f7fc;
-        }
+@section('content')
+<div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-8 mt-8">
+    <h2 class="text-2xl font-semibold text-center text-green-600 mb-6">Book an Appointment</h2>
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
 
-        h2 {
-            text-align: center;
-            color: #4CAF50;
-        }
+    <div class="space-y-4 mb-6">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Specialization:</label>
+            <input type="text" value="{{ $doctor->specialization->name }}" readonly
+                class="mt-1 block w-full border-gray-300 rounded-md py-3 px-4 bg-gray-100 cursor-not-allowed">
+        </div>
 
-        .form-group {
-            margin-bottom: 15px;
-        }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Doctor:</label>
+            <input type="text" value="{{ $doctor->user->name }}" readonly
+                class="mt-1 block w-full border-gray-300 rounded-md py-3 px-4 bg-gray-100 cursor-not-allowed">
+        </div>
 
-        input[type="date"],
-        input[type="time"],
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container">
-        <h2>Create an Appointment</h2>
-        <form action="{{route('appointments.store')}}" method="POST">
-            @csrf
-            <!-- Appointment Date -->
-            <div class="form-group">
-    <label for="doctor">Choose Doctor:</label>
-    <select id="doctor" name="doctor_id" required>
-        <option value="">Select a Doctor</option>
-        @foreach ($doctors as $doctor)
-            <option value="{{ $doctor->id }}">{{ $doctor->user->name }}</option>
-        @endforeach
-    </select>
-</div>
-            <div class="form-group">
-                <label for="appointment-date">Appointment Date:</label>
-                <input type="date" id="appointment-date" name="appointment_date" required>
-            </div>
-
-            <!-- Start Time -->
-            <div class="form-group">
-                <label for="start-time">Start Time:</label>
-                <input type="time" id="start-time" name="start_time" required>
-            </div>
-
-            <!-- End Time -->
-            <div class="form-group">
-                <label for="end-time">End Time:</label>
-                <input type="time" id="end-time" name="end_time" required>
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit">Create Appointment</button>
-        </form>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Appointment Date:</label>
+            <input type="text" value="{{ $appointment_date->format('d-m-Y') }}" readonly
+                class="mt-1 block w-full border-gray-300 rounded-md py-3 px-4 bg-gray-100 cursor-not-allowed">
+        </div>
     </div>
 
-</body>
 
-</html>
+    <form action="{{ route('appointments.store') }}" method="POST" class="space-y-6">
+        @csrf
+
+
+        <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
+        <input type="hidden" name="appointment_date" value="{{ $appointment_date->format('Y-m-d') }}">
+
+
+        <div class="form-group">
+            <label for="start_time" class="block text-sm font-medium text-gray-700">Available Slots:</label>
+            <select name="start_time" id="start_time" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-3 px-4">
+                <option value="" disabled selected>Select a slot</option>
+                @foreach($available_slots as $slot)
+                    <option value="{{ $slot }}">{{ date('h:i A', strtotime($slot)) }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" class="w-full py-3 bg-green-500 text-white rounded-md hover:bg-green-600">
+                Confirm Appointment
+            </button>
+        </div>
+    </form>
+</div>
+@endsection

@@ -26,7 +26,6 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request)
     {
-        dd("jakfa");
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
@@ -43,19 +42,20 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
-
         Auth::logout();
-
         $user->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function deleteForm(Request $request){
+        if ($request->method() === 'GET' && Auth::user()) {
+            return view('profile.partials.delete-user-form');
+        }
+
     }
 }

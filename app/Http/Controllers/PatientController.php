@@ -91,7 +91,6 @@ class PatientController extends Controller
 
         $input = $request->only(['name', 'email', 'phone', 'address']);
         if ($request->filled('password')) {
-
             $input['password'] = bcrypt($request->input('password'));
         }
 
