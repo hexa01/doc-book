@@ -5,6 +5,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ScheduleController;
@@ -17,6 +18,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::middleware(['auth','verified'])->group(function(){
+    Route::get('/payment/create{appointment}', [PaymentController::class,'create'])->name('payment.create');
+    
+    Route::post('/esewaPay{appointment}', [PaymentController::class,'esewaPay'])->name('esewaPay');
+    Route::get ('/success',[PaymentController::class,'esewaPaySuccess'])->name('payment.success');
+    Route::get ('/failure',[PaymentController::class,'esewaPayFailure'])->name('payment.failure');
+
+    Route::resource('payments',PaymentController::class);
+});
+
+
 
 Route::get('/dashboard', [AppointmentController::class, 'appointmentsManage'])->middleware(['auth', 'verified'])->name('dashboard');
 

@@ -1,17 +1,17 @@
 <div class="container mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
     @if(session('message'))
-        <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
-            {{ session('message') }}
-        </div>
+    <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+        {{ session('message') }}
+    </div>
     @elseif(session('error'))
-        <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
-            {{ session('error') }}
-        </div>
+    <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+        {{ session('error') }}
+    </div>
     @endif
 
     <div class="mb-6">
-        <a href="{{ route('appointments.specialization') }}" 
-           class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+        <a href="{{ route('appointments.specialization') }}"
+            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
             Book an Appointment
         </a>
     </div>
@@ -32,38 +32,49 @@
         </thead>
         <tbody>
             @forelse ($appointments as $appointment)
-                <tr class="border-b">
-                    <td class="px-4 py-2">{{ $appointment->doctor->user->name }}</td>
-                    <td class="px-4 py-2">{{ $appointment->doctor->specialization->name }}</td>
-                    <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d-m-Y') }}</td>
-                    <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</td>
-                    <td class="px-4 py-2">
-                        @if($appointment->status == 'booked')
-                        <span class="text-green-600">Booked</span>
-                        @elseif($appointment->status == 'completed')
-                        <span class="text-yellow-600">Completed</span>
-                        @elseif($appointment->status == 'missed')
-                        <span class="text-red-600">Missed</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-2 flex space-x-2">
-                        @if($appointment->status == 'completed')
-                        <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Edit</button>
-                        <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Delete</button>
-                        @elseif($appointment->status == 'booked')
-                        <a href="{{ route('appointments.edit', $appointment->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
-                        <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </form>
-                        @endif
-                    </td>
-                </tr>
+            <tr class="border-b">
+                <td class="px-4 py-2">{{ $appointment->doctor->user->name }}</td>
+                <td class="px-4 py-2">{{ $appointment->doctor->specialization->name }}</td>
+                <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d-m-Y') }}</td>
+                <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</td>
+                <td class="px-4 py-2">
+                    @if($appointment->status == 'booked')
+                    <span class="text-yellow-600">Booked</span>
+                    @elseif($appointment->status == 'completed')
+                    <span class="text-green-600">Completed</span>
+                    @elseif($appointment->status == 'missed')
+                    <span class="text-red-600">Missed</span>
+                    @elseif($appointment->status == 'paid')
+                    <span class="text-green-600">Paid</span>
+                    @endif
+                </td>
+                <td class="px-4 py-2 flex space-x-2">
+                @if($appointment->status == 'paid')
+                    <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" disabled>Paid</button>
+                    @else
+                    <form action="{{ route('esewaPay', $appointment) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
+                        <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Pay</button>
+                    </form>
+                    @endif
+                    @if($appointment->status == 'completed')
+                    <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Edit</button>
+                    <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Delete</button>
+                    @elseif($appointment->status == 'booked')
+                    <a href="{{ route('appointments.edit', $appointment->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
+                    <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
+                    </form>
+                    @endif
+                </td>
+            </tr>
             @empty
-                <tr>
-                    <td colspan="7" class="px-4 py-2 text-center text-gray-500">No appointments found.</td>
-                </tr>
+            <tr>
+                <td colspan="7" class="px-4 py-2 text-center text-gray-500">No appointments found.</td>
+            </tr>
             @endforelse
         </tbody>
     </table>

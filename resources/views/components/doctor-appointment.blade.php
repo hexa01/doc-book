@@ -42,6 +42,8 @@
                         <span class="text-green-600">Completed</span>
                         @elseif($appointment->status == 'missed')
                         <span class="text-red-600">Missed</span>
+                        @elseif($appointment->status == 'paid')
+                        <span class="text-green-600">Paid</span>
                         @endif
                     </td>
  

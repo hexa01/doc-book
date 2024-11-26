@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\Specialization;
 use Carbon\Carbon;
@@ -89,12 +90,22 @@ class AppointmentController extends Controller
         
         $patient = Patient::where('user_id', Auth::id())->first();
         $patientId = $patient->id;
-        Appointment::create([
+        
+        $appointment = Appointment::create([
             'patient_id' => $patientId,
             'doctor_id' => $request->doctor_id,
             'appointment_date' => $request->appointment_date,
             'start_time' => $request->start_time,
         ]);
+
+        $price = 500;
+
+        Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => $price,
+            'status' => 'unpaid',
+        ]);
+
         return to_route('appointments.index')->with('message',"Appointment has been booked successfully");
     }
 
