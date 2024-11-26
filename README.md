@@ -1,6 +1,6 @@
 # Doctor Appointment System
 
-The **Doctor Appointment System** is a web-based application built using Laravel that enables patients to book appointments with doctors efficiently. The application runs on a cloud server using a Linux-based environment.
+The **Doctor Appointment System** is a web-based application built using Laravel that enables patients to book appointments with doctors efficiently.
 
 ## Features
 
@@ -23,10 +23,8 @@ The **Doctor Appointment System** is a web-based application built using Laravel
 ## Technology Stack
 
 - **Backend:** Laravel (PHP)  
-- **Frontend:** Blade templates, Bootstrap, CSS  
-- **Database:** MySQL / MariaDB  
-- **Cloud Hosting:** Linux-based cloud server  
-- **Others:** Composer, Nginx/Apache  
+- **Frontend:** Blade templates, Tailwind, CSS  
+- **Database:** SQLite   
 
 ### Clone the Repository
 
