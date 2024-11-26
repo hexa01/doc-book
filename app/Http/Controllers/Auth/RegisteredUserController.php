@@ -44,6 +44,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'address' => $request->address,
+            'role' => $request->role,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
@@ -52,9 +53,6 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
             ]);
         } elseif ($user->role == 'doctor') {
-            $user->update([
-                'role'=>'doctor'
-            ]);
             $specialization_id = NULL;
             if ($request->has('specialization_id')) {
                 $specialization_id = $request->specialization_id;
@@ -75,11 +73,11 @@ class RegisteredUserController extends Controller
         }
 
         event(new Registered($user));
-        Auth::login($user);
-        if ($user->role == 'patient') {
-            return redirect(route('dashboard', absolute: false));
-        } elseif ($user->role == 'doctor') {
-            return redirect(route('dashboard', absolute: false));
-        }
+        return redirect()->route('login')->with('status', 'Registration successful! Please log in.');
+        // if ($user->role == 'patient') {
+        //     return redirect(route('dashboard', absolute: false));
+        // } elseif ($user->role == 'doctor') {
+        //     return redirect(route('dashboard', absolute: false));
+        // }
     }
 }

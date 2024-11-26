@@ -6,6 +6,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Specialization;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -14,6 +15,7 @@ class AdminController extends Controller
      */
     public function index()
     {
+        abort_if(!(Auth::user()->role == 'admin'),404);
         $patients_count = Patient::count();
         $doctors_count = Doctor::count();
         $specializations_count = Specialization::count();

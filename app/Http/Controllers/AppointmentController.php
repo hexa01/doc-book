@@ -173,6 +173,7 @@ class AppointmentController extends Controller
 
     public function appointmentsManage()
     {
+        abort_if((Auth::User()->role == 'admin'),404);
         //update appointments status to completed if the time is in the past
         Appointment::where(function ($query) {
             $query->where('appointment_date', '<', Carbon::today())
@@ -187,22 +188,23 @@ class AppointmentController extends Controller
 
         if (Auth::user()->role == 'doctor') {
             $id = Auth::user()->doctor->id;
-            $appointments = Appointment::where('doctor_id', $id)
-                ->where('appointment_date', '>=', now())
-                ->orderBy('appointment_date', 'desc')->orderBy('start_time', 'desc')->get();
-            $count = 0;
+            $appointments = Appointment::where('doctor_id', $id)->where('appointment_date', '>=', now())
+            ->orderBy('appointment_date', 'desc')->orderBy('start_time', 'desc')->get();
+            $count = $appointments->count();
+            $patientCount = Appointment::where('doctor_id', $id)->distinct('patient_id')->count('patient_id');
+
         } elseif (Auth::user()->role == 'patient') {
             $id = Auth::user()->patient->id;
+            $patientCount = 0;
             $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'desc')->get();
             $count = $appointments->filter(function ($appointment) {
                 return Carbon::parse($appointment->appointment_date)->isFuture() ||
                     (Carbon::parse($appointment->appointment_date)->isToday() && Carbon::parse($appointment->start_time)->isAfter(Carbon::now()));
             })->count();
         }
-        return view('dashboard', compact('appointments', 'count'));
-    }
 
-    //function for showing specialization while booking appointment
+        return view('dashboard', compact('appointments', 'count','patientCount'));
+    }
     public function showSpecializations()
     {
 
@@ -226,31 +228,31 @@ class AppointmentController extends Controller
     public function editReview(Appointment $appointment)
     {
         abort_if(!((Auth::user()->id == $appointment->doctor->user->id)), 404);
-        // Ensure the appointment exists and belongs to the authenticated user (if needed)
+        
         return view('reviews.edit', compact('appointment'));
     }
 
     public function updateReview(Request $request, Appointment $appointment)
     {
         abort_if(!((Auth::user()->id == $appointment->doctor->user->id)), 404);
-        // Validate the review field
+        
         $request->validate([
-            'review' => 'required|string|max:1000',  // You can adjust the max length as needed
+            'review' => 'required|string|max:1000',  
         ]);
 
-        // Update the review in the appointments table
+        
         $appointment->update([
             'review' => $request->review,
         ]);
 
-        // Redirect back with a success message
+        
         return redirect()->route('doctor.patients', $appointment)->with('message', 'Review updated successfully!');
     }
 
     public function patientReviews()
     {
         abort_if(!(Auth::user()), 404);
-        // Fetch all appointments for the authenticated patient
+        
         $appointments = Appointment::where('patient_id', Auth::id())->get();
 
         return view('reviews.index', compact('appointments'));

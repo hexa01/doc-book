@@ -1,21 +1,17 @@
 <div class="max-w-7xl mx-auto px-4">
     <h1 class="text-2xl font-bold mb-6">Welcome, Dr. {{ Auth::user()->name }}</h1>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-6">
 
         <div class="bg-white shadow rounded-lg p-4">
             <h2 class="text-gray-600 font-semibold">Total Appointments</h2>
-            <p class="text-3xl font-bold text-blue-600">120</p>
+            <p class="text-3xl font-bold text-blue-600">{{$count}}</p>
         </div>
 
-        <div class="bg-white shadow rounded-lg p-4">
-            <h2 class="text-gray-600 font-semibold">Today's Appointments</h2>
-            <p class="text-3xl font-bold text-green-600">8</p>
-        </div>
 
         <div class="bg-white shadow rounded-lg p-4">
             <h2 class="text-gray-600 font-semibold">Total Patients</h2>
-            <p class="text-3xl font-bold text-indigo-600">45</p>
+            <p class="text-3xl font-bold text-indigo-600">{{$patientCount}}</p>
         </div>
 
         <!-- <div class="bg-white shadow rounded-lg p-4">
@@ -28,7 +24,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         <a href="{{ route('appointments.index') }}" class="bg-blue-500 text-white p-4 rounded-lg shadow hover:bg-blue-600">
             <h3 class="text-lg font-bold">View Appointments</h3>
-            <p>Check and manage your upcoming appointments.</p>
+            <p>Check your appointments.</p>
         </a>
         <a href="{{route('schedules.index')}}" class="bg-green-500 text-white p-4 rounded-lg shadow hover:bg-green-600">
             <h3 class="text-lg font-bold">Set Schedule</h3>

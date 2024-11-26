@@ -13,12 +13,27 @@
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to Doctor Appointment System</h1>
             <p class="text-lg md:text-xl mb-6">Book appointments with ease and manage your healthcare online.</p>
             <div class="flex justify-center gap-4">
-                <a href="{{ route('login') }}" class="px-6 py-3 bg-white text-blue-500 font-semibold rounded shadow hover:bg-gray-200">
-                    Login
-                </a>
-                <a href="{{ route('register') }}" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded shadow hover:bg-teal-600">
-                    Register
-                </a>
+                @auth
+                    @if (auth()->user()->role === 'admin')
+                        <!-- Admin Dashboard Link -->
+                        <a href="{{ route('admins.index') }}" class="px-6 py-3 bg-white text-blue-500 font-semibold rounded shadow hover:bg-gray-200">
+                            Admin Dashboard
+                        </a>
+                    @else
+                        <!-- User Dashboard Link -->
+                        <a href="{{ route('dashboard') }}" class="px-6 py-3 bg-white text-blue-500 font-semibold rounded shadow hover:bg-gray-200">
+                            Dashboard
+                        </a>
+                    @endif
+                @else
+                    <!-- Show Login and Register links if user is not logged in -->
+                    <a href="{{ route('login') }}" class="px-6 py-3 bg-white text-blue-500 font-semibold rounded shadow hover:bg-gray-200">
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded shadow hover:bg-teal-600">
+                        Register
+                    </a>
+                @endauth
             </div>
         </div>
     </header>
