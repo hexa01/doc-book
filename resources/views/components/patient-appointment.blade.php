@@ -37,14 +37,27 @@
                     <td class="px-4 py-2">{{ $appointment->doctor->specialization->name }}</td>
                     <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d-m-Y') }}</td>
                     <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</td>
-                    <td class="px-4 py-2">{{ $appointment->status }}</td>
+                    <td class="px-4 py-2">
+                        @if($appointment->status == 'booked')
+                        <span class="text-green-600">Booked</span>
+                        @elseif($appointment->status == 'completed')
+                        <span class="text-yellow-600">Completed</span>
+                        @elseif($appointment->status == 'missed')
+                        <span class="text-red-600">Missed</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-2 flex space-x-2">
+                        @if($appointment->status == 'completed')
+                        <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Edit</button>
+                        <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Delete</button>
+                        @elseif($appointment->status == 'booked')
                         <a href="{{ route('appointments.edit', $appointment->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
                         <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
                         </form>
+                        @endif
                     </td>
                 </tr>
             @empty

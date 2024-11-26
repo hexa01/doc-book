@@ -1,31 +1,27 @@
 <div class="max-w-7xl mx-auto px-4">
     <h1 class="text-2xl font-bold mb-6">Welcome, Dr. {{ Auth::user()->name }}</h1>
 
-    <!-- Stats Section -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <!-- Total Appointments -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+
         <div class="bg-white shadow rounded-lg p-4">
             <h2 class="text-gray-600 font-semibold">Total Appointments</h2>
             <p class="text-3xl font-bold text-blue-600">120</p>
         </div>
 
-        <!-- Today's Appointments -->
         <div class="bg-white shadow rounded-lg p-4">
             <h2 class="text-gray-600 font-semibold">Today's Appointments</h2>
             <p class="text-3xl font-bold text-green-600">8</p>
         </div>
 
-        <!-- Total Patients -->
         <div class="bg-white shadow rounded-lg p-4">
             <h2 class="text-gray-600 font-semibold">Total Patients</h2>
             <p class="text-3xl font-bold text-indigo-600">45</p>
         </div>
 
-        <!-- Availability -->
-        <div class="bg-white shadow rounded-lg p-4">
+        <!-- <div class="bg-white shadow rounded-lg p-4">
             <h2 class="text-gray-600 font-semibold">Weekly Availability</h2>
             <p class="text-3xl font-bold text-yellow-600">5 Days</p>
-        </div>
+        </div>-->
     </div>
 
     <!-- Quick Actions -->

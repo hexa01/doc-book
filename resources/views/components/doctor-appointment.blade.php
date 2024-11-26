@@ -10,11 +10,11 @@
     </div>
     @endif
 
-    <div class="mb-6">
+    <!-- <div class="mb-6">
         <a href="" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
             Take a Break
         </a>
-    </div>
+    </div> -->
 
     <h1 class="text-2xl font-semibold mb-6">My Appointments</h1>
 
@@ -26,7 +26,7 @@
                 <th class="px-4 py-2">Date</th>
                 <th class="px-4 py-2">Time</th>
                 <th class="px-4 py-2">Status</th>
-                <th class="px-4 py-2">Actions</th>
+                <!-- <th class="px-4 py-2">Actions</th> -->
             </tr>
         </thead>
         <tbody>
@@ -45,14 +45,14 @@
                         @endif
                     </td>
  
-        <td class="px-4 py-2 flex space-x-2">
+        <!-- <td class="px-4 py-2 flex space-x-2">
             <a href="" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
             <form action="" method="POST">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
             </form>
-        </td>
+        </td> -->
     </tr>
     @empty
     <!-- Display message if no appointments are found -->
