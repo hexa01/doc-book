@@ -62,6 +62,7 @@ class RegisteredUserController extends Controller
                 'specialization_id'  => $specialization_id,
             ]);
         } elseif ($user->role == 'admin') {
+
         }
         if (Auth::user()) {
             if ($user->role == 'patient') {
@@ -69,7 +70,7 @@ class RegisteredUserController extends Controller
             } elseif ($user->role == 'doctor') {
                 return redirect(route('doctors.index', absolute: false));
             }
-            return redirect(route('admins.index', absolute: false));
+            return redirect(route('admins.view', absolute: false));
         }
 
         event(new Registered($user));

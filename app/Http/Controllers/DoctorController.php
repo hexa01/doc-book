@@ -30,7 +30,7 @@ class DoctorController extends Controller
      */
     public function create()
     {
-        return view('doctors.create', compact('specializations'));
+        // return view('doctors.create', compact('specializations'));
     }
 
     /**

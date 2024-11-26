@@ -1,6 +1,6 @@
 <x-guest-layout>
     <form method="POST" action="{{ route('register') }}">
-        @csrf
+        @csrfr
     <input type="hidden" name="role" value="patient">
         <!-- Name -->
         <div>

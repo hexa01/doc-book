@@ -19,14 +19,16 @@ class AppointmentController extends Controller
      */
     public function index()
     {
-        abort_if(!(Auth::user()), 404);
         if (Auth::user()->role == 'patient') {
             $id = Auth::user()->patient->id;
             $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
         } elseif (Auth::user()->role == 'doctor') {
             $id = Auth::user()->doctor->id;
             $appointments = Appointment::where('doctor_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
+        } else {
+            abort(403, 'Unauthorized access');
         }
+
         return view('appointments.index', compact('appointments'));
     }
 
@@ -39,7 +41,9 @@ class AppointmentController extends Controller
 
         $request->validate([
             'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
+            'doctor_id' => 'required|exists:doctors,id',
         ]);
+        
 
         $doctor = Doctor::findOrFail($request->doctor_id);
         $appointment_date = Carbon::parse($request->appointment_date);
@@ -107,8 +111,11 @@ class AppointmentController extends Controller
      */
     public function edit(string $id)
     {
-        abort_if(!(Auth::user()), 404);
+        abort_if(!(Auth::user()), 403);
         $appointment = Appointment::findOrFail($id);
+        if ($appointment->status == 'completed') {
+            abort(403, 'Cannot update a completed appointment.');
+        }
         abort_if(($appointment->patient->user_id !== Auth::id()),404);
 
         $doctor = $appointment->doctor;
@@ -148,6 +155,10 @@ class AppointmentController extends Controller
     {
         abort_if(!(Auth::user()), 404);
         $appointment = Appointment::findOrFail($id);
+        if ($appointment->status == 'completed') {
+            abort(403, 'Cannot update a completed appointment.');
+        }
+        
         abort_if(($appointment->patient->user_id !== Auth::id()),404);
         $request->validate([
             'start_time' => 'required|date_format:H:i',
@@ -252,9 +263,7 @@ class AppointmentController extends Controller
     public function patientReviews()
     {
         abort_if(!(Auth::user()), 404);
-        
-        $appointments = Appointment::where('patient_id', Auth::id())->get();
-
+        $appointments = Appointment::where('patient_id', Auth::id())->whereNotNull('review')->get();
         return view('reviews.index', compact('appointments'));
     }
 

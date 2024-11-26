@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::get('appointments/{appointment}/edit-review', [AppointmentController::class, 'editReview'])->name('appointments.editReview');
     Route::put('appointments/{appointment}/update-review', [AppointmentController::class, 'updateReview'])->name('appointments.updateReview');
     Route::Resource('appointments', AppointmentController::class);
+    Route::get('/admin', [AdminController::class, 'view'])->name('admins.view');
     Route::Resource('admins', AdminController::class);
     Route::Resource('specializations', SpecializationController::class);
     Route::post('userregister', [RegisteredUserController::class, 'store'])->name('admin.user.store');

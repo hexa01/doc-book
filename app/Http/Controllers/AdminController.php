@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Specialization;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,7 +30,8 @@ class AdminController extends Controller
      */
     public function create()
     {
-        //
+        abort_if(!(Auth::user()->role == 'admin'), 404);
+        return view('admins.create');
     }
 
     /**
@@ -69,6 +71,17 @@ class AdminController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        abort_if(!(Auth::user()->role == 'admin'),404);
+        $admin = User::findOrFail($id);
+        $admin->delete();
+        return to_route('admins.view')->with('message',"Admin has been deleted successfully");
     }
+
+    public function view()
+{
+    abort_if(!(Auth::user()->role == 'admin'),404);
+    $admins =  User::where('role','admin')->get(); // Fetch all admins from the database
+    return view('admins.view', compact('admins'));
+}
+
 }

@@ -8,6 +8,7 @@
                 <a href="{{ route('patients.index') }}" class="text-white">Patients</a>
                 <a href="{{ route('doctors.index') }}" class="text-white">Doctors</a>
                 <a href="{{ route('specializations.index') }}" class="text-white">Specializations</a>
+                <a href="{{ route('admins.view') }}" class="text-white">Admins</a>
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
                     <button class="text-white" type="submit">Logout</button>
