@@ -123,7 +123,7 @@ class DoctorController extends Controller
     {
         abort_if(Auth::user()->role != 'doctor', 403);
         $doctor = Auth::user()->doctor;
-        $appointments = $doctor->appointments()->with('patient')->get();
+        $appointments = $doctor->appointments()->with('patient')->where('status','completed')->get();
         $patients = $appointments->pluck('patient')->unique('id');
         return view('doctors.patients', compact('patients'));
     }

@@ -223,4 +223,38 @@ class AppointmentController extends Controller
         return view('appointments.slots', compact('doctor'));
     }
 
+    public function editReview(Appointment $appointment)
+    {
+        abort_if(!((Auth::user()->id == $appointment->doctor->user->id)), 404);
+        // Ensure the appointment exists and belongs to the authenticated user (if needed)
+        return view('reviews.edit', compact('appointment'));
+    }
+
+    public function updateReview(Request $request, Appointment $appointment)
+    {
+        abort_if(!((Auth::user()->id == $appointment->doctor->user->id)), 404);
+        // Validate the review field
+        $request->validate([
+            'review' => 'required|string|max:1000',  // You can adjust the max length as needed
+        ]);
+
+        // Update the review in the appointments table
+        $appointment->update([
+            'review' => $request->review,
+        ]);
+
+        // Redirect back with a success message
+        return redirect()->route('doctor.patients', $appointment)->with('message', 'Review updated successfully!');
+    }
+
+    public function patientReviews()
+    {
+        abort_if(!(Auth::user()), 404);
+        // Fetch all appointments for the authenticated patient
+        $appointments = Appointment::where('patient_id', Auth::id())->get();
+
+        return view('reviews.index', compact('appointments'));
+    }
+
 }
+

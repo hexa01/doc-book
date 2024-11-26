@@ -24,10 +24,10 @@
         <!-- Medical History Card -->
         <div class="bg-white shadow-md rounded-lg p-4">
             <h2 class="text-lg font-semibold text-gray-800">Medical History</h2>
-            <p class="text-gray-600 mt-2">View your past consultations and medical history.</p>
-            <a href=""
+            <p class="text-gray-600 mt-2">View your past consultations and reviews.</p>
+            <a href="{{ route('appointments.patientReviews') }}"
                 class="text-blue-500 hover:underline mt-3 block">
-                View History
+                View Reviews
             </a>
         </div>
 

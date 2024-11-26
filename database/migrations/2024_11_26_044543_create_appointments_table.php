@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('appointment_date');
             $table->time('start_time');
             $table->string('status')->default('booked');
+            $table->text('review')->nullable();
             $table->timestamps();
         });
     }

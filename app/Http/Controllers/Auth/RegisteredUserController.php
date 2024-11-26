@@ -44,7 +44,6 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'address' => $request->address,
-            'role' => $request->role,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
@@ -53,6 +52,9 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
             ]);
         } elseif ($user->role == 'doctor') {
+            $user->update([
+                'role'=>'doctor'
+            ]);
             $specialization_id = NULL;
             if ($request->has('specialization_id')) {
                 $specialization_id = $request->specialization_id;

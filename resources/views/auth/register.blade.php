@@ -31,23 +31,23 @@
         </div>
 
         <!-- Role Selection -->
-        <div class="mt-4">
-            <x-input-label for="role" :value="__('Register as:')" />
-            <div class="flex items-center space-x-4">
+        <!-- <div class="mt-4">
+            <x-input-label for="role" :value="__('Register as:')" /> -->
+            <!-- <div class="flex items-center space-x-4"> -->
                 <!-- Patient Radio Button -->
-                <div>
+                <!-- <div>
                     <input type="radio" id="patient" name="role" value="patient" class="mr-2" {{ old('role') == 'patient' ? 'checked' : '' }}>
                     <label for="patient" class="text-sm text-gray-700">{{ __('Patient') }}</label>
-                </div>
+                </div> -->
 
                 <!-- Doctor Radio Button -->
-                <div>
+                <!-- <div>
                     <input type="radio" id="doctor" name="role" value="doctor" class="mr-2" {{ old('role') == 'doctor' ? 'checked' : '' }}>
                     <label for="doctor" class="text-sm text-gray-700">{{ __('Doctor') }}</label>
                 </div>
             </div>
             <x-input-error :messages="$errors->get('role')" class="mt-2" />
-        </div>
+        </div> -->
 
         <!-- Password -->
         <div class="mt-4">
