@@ -29,4 +29,3 @@ The **Doctor Appointment System** is a web-based application built using Laravel
 ### Clone the Repository
 
    git clone https://www.github.com/hexa01/doc-book
-   cd doctor-appointment-system
