@@ -57,6 +57,9 @@
                     @endforeach
                 </tbody>
             </table>
+            <div class="mt-4">
+                {{$doctors->links()}}
+            </div>
         </div>
 
     </div>

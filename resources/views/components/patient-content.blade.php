@@ -87,6 +87,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="mt-4">
+                {{appointments->links()}}
+            </div>
         </div>
     </div>
 

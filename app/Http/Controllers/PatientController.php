@@ -16,8 +16,9 @@ class PatientController extends Controller
     public function index()
     {
         abort_if(!(Auth::user()->role == 'admin'), 404);
-        $patients = User::where('role', 'patient')->get();
+        $patients = User::where('role', 'patient')->paginate(7);
         // dd($patients->toArray());
+
         return view('patients.index', compact('patients'));
     }
 

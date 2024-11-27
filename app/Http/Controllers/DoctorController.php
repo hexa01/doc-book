@@ -17,7 +17,7 @@ class DoctorController extends Controller
     public function index()
     {
         abort_if(!(Auth::user()->role == 'admin'), 404);
-        $doctors = User::where('role','doctor')->get();
+        $doctors = User::where('role','doctor')->paginate(6);
 
         // $doctors = User::where('role', 'doctor')->with('specialization')->get();
         // dd($doctors->toArray());

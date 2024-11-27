@@ -16,16 +16,15 @@
     <div class="container mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
         <h1 class="text-2xl font-bold mb-6">All Specializations</h1>
 
-        <!-- Add Specialization Form -->
         <div class="mb-6 bg-white p-6 rounded-lg shadow-md">
             <form method="POST" action="{{ route('specializations.store') }}" class="flex justify-center items-center space-x-4">
                 @csrf
-                <!-- Input for Specialization Name -->
+
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 text-center mb-1">Specialization Name</label>
                     <input type="text" name="name" id="name" placeholder="Enter Specialization" class="w-64 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
-                <!-- Submit Button -->
+
                 <div>
                     <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-700">
                         Add

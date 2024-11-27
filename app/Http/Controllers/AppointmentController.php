@@ -22,10 +22,10 @@ class AppointmentController extends Controller
     {
         if (Auth::user()->role == 'patient') {
             $id = Auth::user()->patient->id;
-            $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
+            $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->paginate(5);
         } elseif (Auth::user()->role == 'doctor') {
             $id = Auth::user()->doctor->id;
-            $appointments = Appointment::where('doctor_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
+            $appointments = Appointment::where('doctor_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->paginate(5);
         } else {
             abort(403, 'Unauthorized access');
         }
@@ -124,7 +124,7 @@ class AppointmentController extends Controller
     {
         abort_if(!(Auth::user()), 403);
         $appointment = Appointment::findOrFail($id);
-        if ($appointment->status == 'completed') {
+        if ($appointment->status == 'completed' && $appointment->status == 'paid') {
             abort(403, 'Cannot update a completed appointment.');
         }
         abort_if(($appointment->patient->user_id !== Auth::id()),404);
