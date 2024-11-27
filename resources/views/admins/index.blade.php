@@ -42,8 +42,8 @@
             <!-- Admins -->
             <div class="bg-white shadow-md rounded-lg p-6 text-center">
                 <h2 class="text-xl font-semibold mb-2">Admins</h2>
-                <p class="text-4xl font-bold text-red-500 mb-4">5</p>
-                <a href="#" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                <p class="text-4xl font-bold text-red-500 mb-4">{{$count_arr[3]}}</p>
+                <a href="{{route('admins.view')}}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
                     Manage Admins
                 </a>
             </div>

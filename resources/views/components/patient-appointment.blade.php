@@ -50,7 +50,7 @@
                 </td>
                 <td class="px-4 py-2 flex space-x-2">
                 @if($appointment->status == 'paid')
-                    <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" disabled>Paid</button>
+                    <button class="px-4 py-2 bg-green-500 text-white rounded cursor-not-allowed" disabled>Paid</button>
                     @else
                     <form action="{{ route('esewaPay', $appointment) }}" method="POST">
                         @csrf

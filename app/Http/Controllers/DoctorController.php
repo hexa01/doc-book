@@ -29,8 +29,9 @@ class DoctorController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        // return view('doctors.create', compact('specializations'));
+    {   
+        $specializations = Specialization::all();
+        return view('doctors.create', compact('specializations'));
     }
 
     /**

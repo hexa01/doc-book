@@ -213,7 +213,7 @@ class AppointmentController extends Controller
             $appointments = Appointment::where('doctor_id', $id)->where('appointment_date', '>=', now())
             ->orderBy('appointment_date', 'desc')->orderBy('start_time', 'desc')->get();
             $count = $appointments->count();
-            $patientCount = Appointment::where('doctor_id', $id)->distinct('patient_id')->count('patient_id');
+            $patientCount = Appointment::where('doctor_id', $id)->where('status','completed')->distinct('patient_id')->count('patient_id');
 
         } elseif (Auth::user()->role == 'patient') {
             $id = Auth::user()->patient->id;
