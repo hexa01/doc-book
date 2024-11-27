@@ -73,6 +73,8 @@
                             <span class="text-yellow-600">Completed</span>
                             @elseif($status == 'missed')
                             <span class="text-red-600">Missed</span>
+                            @elseif($status == 'paid')
+                            <span class="text-green-600">Paid</span>
                             @else
                             <span class="text-gray-600">{{ ucfirst($status) }}</span>
                             @endif
@@ -87,9 +89,6 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="mt-4">
-                {{appointments->links()}}
-            </div>
         </div>
     </div>
 
