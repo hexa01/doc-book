@@ -26,7 +26,7 @@ class PatientController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {   
+    {
         abort_if(!(Auth::user()->role == 'admin'), 404);
         return view('patients.create');
     }
@@ -88,7 +88,6 @@ class PatientController extends Controller
                 return back()->withErrors(['current_password' => 'The current password is incorrect.']);
             }
         }
-
 
         $input = $request->only(['name', 'email', 'phone', 'address']);
         if ($request->filled('password')) {

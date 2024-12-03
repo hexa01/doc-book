@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\v1\BaseController;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class AppointmentController extends Controller
+class AppointmentController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -13,6 +15,21 @@ class AppointmentController extends Controller
     public function index()
     {
         //
+        if (Auth::user()->role == 'patient') {
+            $id = Auth::user()->patient->id;
+            $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
+        } elseif (Auth::user()->role == 'doctor') {
+            $id = Auth::user()->doctor->id;
+            $appointments = Appointment::where('doctor_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
+        } else {
+            //for admins code coming in future right now forbidden access
+            return $this->errorResponse('Forbidden Access', 403);
+        }
+
+        if ($appointments->isEmpty()) {
+            return $this->errorResponse('No appointments found',404);
+        }
+        return $this->successResponse('Your appointments retrieved successfully', $appointments, 200);
     }
 
     /**

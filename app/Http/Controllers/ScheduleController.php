@@ -13,14 +13,13 @@ class ScheduleController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {   
+    {
         abort_if(!((Auth::user()->role == 'doctor' )), 404);
         $schedules = Schedule::where('doctor_id', Auth::user()->doctor->id)->get()
         ->sortBy(function($schedule) {
-            $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            $days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             return array_search($schedule->day, $days);
         });
-
         return view('schedules.index', compact('schedules'));
     }
 
@@ -37,7 +36,7 @@ class ScheduleController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {   
+    {
         abort_if(!((Auth::user()->role == 'doctor' )), 404);
         $schedule = Schedule::where('doctor_id', Auth::user()->doctor->id)->where('day',$request->day)->get();
         if ($schedule->isNotEmpty()) {
@@ -91,7 +90,7 @@ class ScheduleController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {   
+    {
         $schedule = Schedule::findOrFail($id);
         abort_if(!((Auth::user()->id == $schedule->doctor->user->id)), 404);
         $request->validate([

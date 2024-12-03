@@ -1,35 +1,31 @@
 <?php
 
 namespace App\Http\Controllers\Api\v1;
-
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\UpdateUserRequest;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Api\v1\BaseController;
 
-class PatientController extends Controller
+
+class PatientController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // $patients = User::where('role', 'patient')->get();
-        $patients = Patient::with('user')->get();
-        if ($patients->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No patients found',
-            ], 404);
+        if(Auth::user()->role !== 'admin'){
+            return $this->errorResponse('Forbidden Access',403);
         }
-        return response()->json([
-            'success' => true,
-            'message' => 'Patients retrieved successfully',
-            'data' => $patients,
-        ], 200);
+        $patients = Patient::with('user')->get();
+
+        if ($patients->isEmpty()) {
+            return $this->errorResponse('No patients found',404);
+        }
+        return $this->successResponse('Patients retrieved successfully', $patients);
     }
 
     /**
@@ -53,14 +49,17 @@ class PatientController extends Controller
      */
     public function update(UpdateUserRequest $request, string $id)
     {
-        $user = User::findOrFail($id);
+
+        if(!($user = User::find($id))){
+            return $this->errorResponse('User not found', 404);
+        };
+        if((Auth::user()->id != $id) && Auth::user()->role !== 'admin'){
+            return $this->errorResponse('Forbidden Access', 403);
+        };
 
         if ($request->filled('current_password') && Auth::user()->role !== 'admin') {
             if (!Hash::check($request->current_password, $user->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'The current password is incorrect.'
-                ], 400);
+                return $this->errorResponse('The current password is incorrect.',400);
             }
         }
 
@@ -73,12 +72,7 @@ class PatientController extends Controller
         }
 
         $user->update($input);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User updated successfully!',
-            'data' => $user
-        ], 200);
+        return $this->successResponse('User updated successfully!', $user);
     }
 
 
@@ -88,5 +82,10 @@ class PatientController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function view(){
+        $patient = Patient::with('user')->where('user_id', Auth::user()->id)->first();
+        return $this->successResponse('Your information retrieved successfully', $patient);
     }
 }

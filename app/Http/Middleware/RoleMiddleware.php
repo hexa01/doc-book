@@ -26,6 +26,9 @@ class RoleMiddleware
 
             return $next($request);
         }
+        return response()->json([
+            'error' => 'Forbidden: You do not have the required permissions',
+        ], 403);
 
 
     }
