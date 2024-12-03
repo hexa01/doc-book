@@ -14,7 +14,7 @@ class AppointmentController extends BaseController
      */
     public function index()
     {
-        //
+
         if (Auth::user()->role == 'patient') {
             $id = Auth::user()->patient->id;
             $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
