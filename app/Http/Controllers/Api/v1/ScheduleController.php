@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\v1\BaseController;
 use App\Models\Schedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,10 +54,16 @@ class ScheduleController extends BaseController
         $doctor_id = Auth::user()->doctor->id;
         $schedule = Schedule::where('doctor_id', $doctor_id)->where('day', $day)->first();
 
+        $start_time = Carbon::parse($request->start_time);
+        $end_time = Carbon::parse($request->end_time);
+        $duration = $start_time->diffInMinutes($end_time);
+        $slots = $duration / 30;
+
         if ($schedule) {
             $schedule->update([
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
+                'slots' => $slots,
             ]);
             return $this->successResponse('Your schedule updated successfully', $schedule, 200);
         } else {
