@@ -44,7 +44,12 @@ class AppointmentController extends BaseController
         $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
             'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
-            'slot' => 'required|date_format:H:i'
+            'slot' => 'required|date_format:H:i',
+            'patient_id' => ['nullable', 'exists:patients,id', function ($attribute,$value, $fail){
+                if (Auth::user()->role === 'admin' && empty($value)){
+                    return $this->errorResponse('Please input patient id.');
+                }
+            }]
         ]);
         $slot = Carbon::parse($request->slot)->format('H:i');
         if(!($doctor = Doctor::find($request->doctor_id))){
@@ -54,12 +59,12 @@ class AppointmentController extends BaseController
         if (empty($available_slots)) {
             $this->errorResponse('There is no slots available for this day,Please choose another day', 404);
         }
-        if (in_array($slot, $available_slots)) {
+        if (!in_array($slot, $available_slots)) {
             $this->errorResponse('This slot is not available', 404);
         }
 
-        $patient = Patient::where('user_id', Auth::id())->first();
-        $patientId = $patient->id;
+        $patientId = (Patient::where('user_id', Auth::id())->first())->id;
+        if(Auth::user()->role)
         $appointment = Appointment::create([
             'patient_id' => $patientId,
             'doctor_id' => $request->doctor_id,
@@ -89,6 +94,39 @@ class AppointmentController extends BaseController
      */
     public function update(Request $request, string $id)
     {
+        if(!($appointment = Appointment::find($id))){
+            return $this->errorResponse('Appointment not found', 404);
+        }
+        if ($appointment->status == 'completed' && $appointment->status == 'paid') {
+            return $this->errorResponse('Cannot update a completed appointment', 403);
+        }
+
+        $doctor = $appointment->doctor;
+        $request->validate([
+            'appointment_date' => 'nullable|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
+            'slot' => 'required|date_format:H:i',
+            'patient_id' => ['nullable', 'exists:patients,id', function ($attribute,$value, $fail){
+                if (Auth::user()->role === 'admin' && empty($value)){
+                    return $this->errorResponse('Please input patient id.');
+                }
+            }]
+        ]);
+        $slot = Carbon::parse($request->slot)->format('H:i');
+        $available_slots = $this->generateAvailableSlots($doctor, $request->appointment_date);
+
+        if (empty($available_slots)) {
+            return $this->errorResponse('There is no slot available for this day,Please choose another day', 404);
+        }
+
+        if (!in_array($slot, $available_slots)) {
+            return $this->errorResponse('This slot is not available', 404);
+        }
+
+            $appointment->update([
+                'appointment_date' => $request->appointment_date,
+                'start_time' => $slot,
+            ]);
+            return $this->successResponse('Appointment updated successfully.', $appointment);
 
     }
 
@@ -97,6 +135,11 @@ class AppointmentController extends BaseController
      */
     public function destroy(string $id)
     {
-        //
+        if(!($appointment = Appointment::find($id))){
+            return $this->errorResponse('Appointment not found', 404);
+        }
+        if($appointment->delete()){
+            return $this->successResponse('Appointment deleted successfully', null);
+        }
     }
 }
