@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\v1\BaseController;
 use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,7 +41,39 @@ class AppointmentController extends BaseController
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'doctor_id' => 'required|exists:doctors,id',
+            'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
+            'slot' => 'required|date_format:H:i'
+        ]);
+        $slot = Carbon::parse($request->slot)->format('H:i');
+        if(!($doctor = Doctor::find($request->doctor_id))){
+            $this->errorResponse('The selected doctor id doesnt exist', 404);
+        }
+        $available_slots = $this->generateAvailableSlots($doctor, $request->appointment_date);
+        if (empty($available_slots)) {
+            $this->errorResponse('There is no slots available for this day,Please choose another day', 404);
+        }
+        if (in_array($slot, $available_slots)) {
+            $this->errorResponse('This slot is not available', 404);
+        }
+
+        $patient = Patient::where('user_id', Auth::id())->first();
+        $patientId = $patient->id;
+        $appointment = Appointment::create([
+            'patient_id' => $patientId,
+            'doctor_id' => $request->doctor_id,
+            'appointment_date' => $request->appointment_date,
+            'start_time' => $slot,
+        ]);
+        $price = 500;
+        Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => $price,
+            'status' => 'unpaid',
+        ]);
+        return $this->successResponse('Appointment Created Successfully',$appointment);
+
     }
 
     /**
@@ -53,7 +89,7 @@ class AppointmentController extends BaseController
      */
     public function update(Request $request, string $id)
     {
-        //
+
     }
 
     /**

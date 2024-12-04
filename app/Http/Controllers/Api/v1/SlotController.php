@@ -2,17 +2,33 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\v1\BaseController;
+use App\Models\Appointment;
+use App\Models\Doctor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class SlotController extends Controller
+class SlotController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $request->validate([
+            'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
+            'doctor_id' => 'required|exists:doctors,id',
+        ]);
+
+        if(!($doctor = Doctor::find($request->doctor_id))){
+            $this->errorResponse('The selected doctor id doesnt exist', 404);
+        }
+        $available_slots = $this->generateAvailableSlots($doctor, $request->appointment_date);
+
+        if (empty($available_slots)) {
+            $this->errorResponse('There is no slots available for this day', 404);
+        }
+        return $this->successResponse('Slots are available',$available_slots);
     }
 
     /**

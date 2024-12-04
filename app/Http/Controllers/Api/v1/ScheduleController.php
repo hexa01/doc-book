@@ -57,7 +57,8 @@ class ScheduleController extends BaseController
         $start_time = Carbon::parse($request->start_time);
         $end_time = Carbon::parse($request->end_time);
         $duration = $start_time->diffInMinutes($end_time);
-        $slots = $duration / 30;
+        // $slots = $duration / 30;
+        $slots = intdiv($duration, 30);
 
         if ($schedule) {
             $schedule->update([

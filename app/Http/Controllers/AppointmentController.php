@@ -37,14 +37,14 @@ class AppointmentController extends Controller
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
-    {   
+    {
         abort_if((Auth::user()->role != 'patient'), 404);
 
         $request->validate([
             'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
             'doctor_id' => 'required|exists:doctors,id',
         ]);
-        
+
 
         $doctor = Doctor::findOrFail($request->doctor_id);
         $appointment_date = Carbon::parse($request->appointment_date);
@@ -58,13 +58,13 @@ class AppointmentController extends Controller
             $startTime = Carbon::parse($schedule->start_time);
             $endTime = Carbon::parse($schedule->end_time);
             $total_duration = $startTime->diffInMinutes($endTime);
-            $slots = $total_duration / 30;
+            $slots = intdiv($total_duration, 30);
             $available_slots = [];
             for ($i = 0; $i < $slots; $i++) {
-                $available_slots[] = $startTime->format('H:i');  
+                $available_slots[] = $startTime->format('H:i');
                 $startTime->addMinutes(30);
             }
-            
+
             $booked_slots = Appointment::where('doctor_id', $doctor->id)->whereDate('appointment_date', $appointment_date)
             ->pluck('start_time')->toArray();
 
@@ -87,10 +87,10 @@ class AppointmentController extends Controller
             'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
             'start_time' => 'required|date_format:H:i',
         ]);
-        
+
         $patient = Patient::where('user_id', Auth::id())->first();
         $patientId = $patient->id;
-        
+
         $appointment = Appointment::create([
             'patient_id' => $patientId,
             'doctor_id' => $request->doctor_id,
@@ -141,7 +141,7 @@ class AppointmentController extends Controller
         $slots = $total_duration / 30;
         $available_slots = [];
         for ($i = 0; $i < $slots; $i++) {
-            $available_slots[] = $startTime->format('H:i');  
+            $available_slots[] = $startTime->format('H:i');
             $startTime->addMinutes(30);
         }
 
@@ -169,7 +169,7 @@ class AppointmentController extends Controller
         if ($appointment->status == 'completed') {
             abort(403, 'Cannot update a completed appointment.');
         }
-        
+
         abort_if(($appointment->patient->user_id !== Auth::id()),404);
         $request->validate([
             'start_time' => 'required|date_format:H:i',
@@ -250,24 +250,24 @@ class AppointmentController extends Controller
     public function editReview(Appointment $appointment)
     {
         abort_if(!((Auth::user()->id == $appointment->doctor->user->id)), 404);
-        
+
         return view('reviews.edit', compact('appointment'));
     }
 
     public function updateReview(Request $request, Appointment $appointment)
     {
         abort_if(!((Auth::user()->id == $appointment->doctor->user->id)), 404);
-        
+
         $request->validate([
-            'review' => 'required|string|max:1000',  
+            'review' => 'required|string|max:1000',
         ]);
 
-        
+
         $appointment->update([
             'review' => $request->review,
         ]);
 
-        
+
         return redirect()->route('doctor.patients', $appointment)->with('message', 'Review updated successfully!');
     }
 

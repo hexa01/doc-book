@@ -101,7 +101,7 @@ class ScheduleController extends Controller
         $startTime = Carbon::parse($request->start_time);
         $endTime = Carbon::parse($request->end_time);
         $duration = $startTime->diffInMinutes($endTime);
-        $slots = $duration / 30;
+        $slots = intdiv($duration, 30);
 
         $schedule->update([
             'doctor_id' => Auth::user()->doctor->id,

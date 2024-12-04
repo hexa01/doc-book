@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\v1\AdminController;
 use App\Http\Controllers\Api\v1\AppointmentController;
 use App\Http\Controllers\Api\v1\PatientController;
 use App\Http\Controllers\Api\v1\ScheduleController;
+use App\Http\Controllers\Api\v1\SlotController;
 use App\Http\Controllers\Api\v1\SpecializationController;
 use App\Http\Controllers\Api\v1\UserAuthController;
 use App\Http\Controllers\Api\v1\UserController;
@@ -49,6 +50,7 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('role:admin,patient')->group( function () {
             Route::apiResource('patients',PatientController::class);
+            Route::apiResource('slots',SlotController::class);
         });
 
         Route::apiResource('/schedules',ScheduleController::class)->middleware('role:doctor');
