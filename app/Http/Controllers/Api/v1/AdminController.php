@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Show all admins
      */
     public function index()
     {
@@ -46,7 +46,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update admins information
      */
     public function update(Request $request, string $id)
     {

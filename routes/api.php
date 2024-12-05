@@ -46,6 +46,8 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('role:admin,doctor')->group( function () {
             Route::apiResource('doctors',DoctorController::class);
+            Route::put('/appointment/status/{appointment}', [AppointmentController::class, 'updateAppointmentStatus'])->name('api.appointment.status.update');
+            Route::put('/appointment/history/{appointment}', [AppointmentController::class, 'updateHistory'])->name('api.history.update');
         });
 
         Route::middleware('role:admin,patient')->group( function () {

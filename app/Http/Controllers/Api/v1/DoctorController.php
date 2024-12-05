@@ -10,10 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+
 class DoctorController extends BaseController
 {
+
     /**
-     * Display a listing of the resource.
+     * Show all doctors.
      */
     public function index()
     {
@@ -46,7 +48,7 @@ class DoctorController extends BaseController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Doctor.
      */
     public function update(UpdateUserRequest $request, string $id)
     {
@@ -106,11 +108,17 @@ class DoctorController extends BaseController
         //
     }
 
+        /**
+     * View my profile
+     */
     public function view(){
         $doctor = Doctor::with('user')->where('user_id', Auth::user()->id)->first();
         return $this->successResponse('Your information retrieved successfully', $doctor);
     }
 
+        /**
+     * View all patients
+     */
     public function viewPatients()
     {
         $doctor = Auth::user()->doctor;
@@ -118,6 +126,9 @@ class DoctorController extends BaseController
         $patients = $appointments->map(function ($appointment) {
             return $appointment->patient->user;
         })->unique('id');
+        if($patients->isEmpty()){
+            return $this->errorResponse('No patients found.');
+        }
         $patientsInfo = $patients->map(function ($user) {
             return [
                 'name' => $user->name,
@@ -128,4 +139,6 @@ class DoctorController extends BaseController
 
         return $this->successResponse('Patients information retrieved successfully', $patientsInfo);
     }
+
+
 }

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * View all Users.
      */
     public function index()
     {
@@ -38,7 +38,7 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create new User.
      */
     public function store(RegisterRequest $request)
     {
@@ -73,6 +73,7 @@ class UserController extends Controller
                     'day' => $day,
                     'start_time' => '10:00',
                     'end_time' => '17:00',
+                    'slots' => 14,
                 ]);
             }
 
@@ -104,7 +105,7 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete User.
      */
     public function destroy(string $id)
     {

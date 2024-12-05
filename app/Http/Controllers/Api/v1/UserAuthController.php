@@ -14,8 +14,15 @@ use Illuminate\Support\Facades\Validator;
 
 class UserAuthController extends BaseController
 {
+        /**
+     * Login
+     */
     public function login(Request $request)
     {
+        // if(Auth::user()){
+        //     $token = $request->user()->currentAccessToken();
+        //     return $this->errorResponse('You are already logged in. Your Token:'. $token);
+        // }
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -48,8 +55,14 @@ class UserAuthController extends BaseController
         ], 200);
     }
 
+        /**
+     * Register
+     */
     public function register(RegisterRequest $request)
     {
+        if ($request->role === 'doctor' || $request->role === 'admin'){
+            return $this->errorResponse('Invalid role. Please choose patient as a role.', 403);
+        }
 
         $validated = $request->validated();
         // $input['password'] = bcrypt($input['password']);
@@ -65,18 +78,8 @@ class UserAuthController extends BaseController
             Patient::create([
                 'user_id' => $user->id,
             ]);
-        } elseif ($user->role == 'doctor') {
-            $specialization_id = NULL;
-            if ($request->has('specialization_id')) {
-                $specialization_id = $request->specialization_id;
-            }
-            Doctor::create([
-                'user_id' => $user->id,
-                'specialization_id'  => $specialization_id,
-            ]);
         }
         // $success['token'] = $user->createToken('doc-book')->plainTextToken;
-
         return response()->json([
             'success' => true,
             // 'result' => $success,
@@ -85,6 +88,9 @@ class UserAuthController extends BaseController
         ], 201);
     }
 
+        /**
+     * Logout
+     */
     public function logout(Request $request)
     {
         // Revoke the token used in the request

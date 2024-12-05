@@ -262,13 +262,12 @@ class AppointmentController extends Controller
             'review' => 'required|string|max:1000',
         ]);
 
-
         $appointment->update([
-            'review' => $request->review,
+            'history' => $request->review,
         ]);
 
 
-        return redirect()->route('doctor.patients', $appointment)->with('message', 'Review updated successfully!');
+        return redirect()->route('doctor.patients', $appointment)->with('message', 'History updated successfully!');
     }
 
     public function patientReviews()

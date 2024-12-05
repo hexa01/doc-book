@@ -7,18 +7,27 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Payment;
+use App\Services\Api\v1\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AppointmentController extends BaseController
 {
+    //appointment controller route sabaile access garna milxa aile fix it
+
+    protected $appointmentService;
+    // Inject the service via the constructor
+    public function __construct(AppointmentService $appointmentService,)
+    {
+        $this->appointmentService = $appointmentService;
+    }
+
     /**
-     * Display a listing of the resource.
+     * View Appointments
      */
     public function index()
     {
-
         if (Auth::user()->role == 'patient') {
             $id = Auth::user()->patient->id;
             $appointments = Appointment::where('patient_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
@@ -37,7 +46,7 @@ class AppointmentController extends BaseController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create Appointment
      */
     public function store(Request $request)
     {
@@ -51,16 +60,17 @@ class AppointmentController extends BaseController
                 }
             }]
         ]);
-        $slot = Carbon::parse($request->slot)->format('H:i');
-        if(!($doctor = Doctor::find($request->doctor_id))){
+        if(!$doctor = Doctor::find($request->doctor_id)){
             $this->errorResponse('The selected doctor id doesnt exist', 404);
         }
-        $available_slots = $this->generateAvailableSlots($doctor, $request->appointment_date);
+        $appointment_date = Carbon::parse($request->appointment_date);
+        $available_slots = $this->appointmentService->generateAvailableSlots($doctor, $appointment_date);
         if (empty($available_slots)) {
             $this->errorResponse('There is no slots available for this day,Please choose another day', 404);
         }
+        $slot = Carbon::parse($request->slot)->format('H:i');
         if (!in_array($slot, $available_slots)) {
-            $this->errorResponse('This slot is not available', 404);
+            return $this->errorResponse('This slot is not available', 404);
         }
 
         $patientId = (Patient::where('user_id', Auth::id())->first())->id;
@@ -68,8 +78,9 @@ class AppointmentController extends BaseController
         $appointment = Appointment::create([
             'patient_id' => $patientId,
             'doctor_id' => $request->doctor_id,
-            'appointment_date' => $request->appointment_date,
+            'appointment_date' => $appointment_date,
             'start_time' => $slot,
+            'status' => 'booked',
         ]);
         $price = 500;
         Payment::create([
@@ -90,15 +101,20 @@ class AppointmentController extends BaseController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Appointment
      */
     public function update(Request $request, string $id)
     {
         if(!($appointment = Appointment::find($id))){
             return $this->errorResponse('Appointment not found', 404);
         }
-        if ($appointment->status == 'completed' && $appointment->status == 'paid') {
-            return $this->errorResponse('Cannot update a completed appointment', 403);
+
+        $payment = Payment::where('appointment_id',$appointment->id)->first();
+        if ($payment->status == 'paid') {
+            return $this->errorResponse('Cannot update already booked appointment', 403);
+        }
+        elseif ($appointment->status == 'completed') {
+            return $this->errorResponse('Cannot update already completed appointment', 403);
         }
 
         $doctor = $appointment->doctor;
@@ -112,7 +128,8 @@ class AppointmentController extends BaseController
             }]
         ]);
         $slot = Carbon::parse($request->slot)->format('H:i');
-        $available_slots = $this->generateAvailableSlots($doctor, $request->appointment_date);
+        $appointment_date = Carbon::parse($request->appointment_date);
+        $available_slots = $this->appointmentService->generateAvailableSlots($doctor, $appointment_date);
 
         if (empty($available_slots)) {
             return $this->errorResponse('There is no slot available for this day,Please choose another day', 404);
@@ -123,7 +140,7 @@ class AppointmentController extends BaseController
         }
 
             $appointment->update([
-                'appointment_date' => $request->appointment_date,
+                'appointment_date' => $appointment_date,
                 'start_time' => $slot,
             ]);
             return $this->successResponse('Appointment updated successfully.', $appointment);
@@ -131,7 +148,7 @@ class AppointmentController extends BaseController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Appointment
      */
     public function destroy(string $id)
     {
@@ -141,5 +158,42 @@ class AppointmentController extends BaseController
         if($appointment->delete()){
             return $this->successResponse('Appointment deleted successfully', null);
         }
+    }
+
+        /**
+     * Update Appointment Status
+     */
+    public function updateAppointmentStatus(Request $request, string $id)
+    {
+        $doctor = Auth::user()->doctor;
+        if(!($appointment = Appointment::where('doctor_id', $doctor->id)->where('id', $id)->first())){
+            return $this->errorResponse("Your appointment not found by this id", 404);
+        }
+
+        $this->appointmentService->validateAppointmentStatus($appointment, $request);
+
+        $appointment->update([
+            'status'=> $request->status,
+        ]);
+
+        return $this->successResponse('Patients information retrieved successfully', $appointment);
+    }
+
+        /**
+     * Update History of Completed Appointments
+     */
+    public function updateHistory(Request $request, string $id)
+    {
+        $doctor = Auth::user()->doctor;
+        if(!($appointment = Appointment::where('doctor_id', $doctor->id)->where('id', $id)->first())){
+            return $this->errorResponse("Your appointment not found by this id", 404);
+        }
+        $request->validate([
+            'history' => 'required|string|max:1000',
+        ]);
+        $appointment->update([
+            'history' => $request->history,
+        ]);
+        return $this->successResponse('Patient History updated successfully.', $appointment);
     }
 }

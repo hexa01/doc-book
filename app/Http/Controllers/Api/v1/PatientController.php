@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\v1\BaseController;
 class PatientController extends BaseController
 {
     /**
-     * Display a listing of the resource.
+     * View all Patients
      */
     public function index()
     {
@@ -45,7 +45,7 @@ class PatientController extends BaseController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Patient.
      */
     public function update(UpdateUserRequest $request, string $id)
     {
@@ -84,6 +84,9 @@ class PatientController extends BaseController
         //
     }
 
+        /**
+     * View my Profile
+     */
     public function view(){
         $patient = Patient::with('user')->where('user_id', Auth::user()->id)->first();
         return $this->successResponse('Your information retrieved successfully', $patient);

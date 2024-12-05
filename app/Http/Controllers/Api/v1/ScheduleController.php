@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\v1\BaseController;
+use App\Models\Appointment;
 use App\Models\Schedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class ScheduleController extends BaseController
 {
     /**
-     * Display a listing of the resource.
+     * Display logged in doctors schedule.
      */
     public function index()
     {
@@ -40,27 +41,40 @@ class ScheduleController extends BaseController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Schedule.
      */
     public function update(Request $request, string $id)
     {
         $day = ucfirst(strtolower($id));
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-        //in_array(strtolower($value), array_map('strtolower', $array))
         if (!in_array($day, $days)) {
-            $this->errorResponse('This is not a valid day', 404);
+            return $this->errorResponse('This is not a valid day', 404);
         }
+
+        $doctor = Auth::user()->doctor;
         $doctor_id = Auth::user()->doctor->id;
+
+        $appointment_dates = Appointment::where('doctor_id', $doctor_id)->distinct()->pluck('appointment_date')->toArray();
+        $appointment_days = array_map(function ($date) {
+            return Carbon::parse($date)->englishDayOfWeek;
+        }, $appointment_dates);
+        if (in_array($day, $appointment_days)) {
+            return $this->errorResponse('Appointment exists in this day. You cant update a schedule on this day.', 403);
+        }
+
         $schedule = Schedule::where('doctor_id', $doctor_id)->where('day', $day)->first();
 
         $start_time = Carbon::parse($request->start_time);
         $end_time = Carbon::parse($request->end_time);
         $duration = $start_time->diffInMinutes($end_time);
+
         // $slots = $duration / 30;
         $slots = intdiv($duration, 30);
 
         if ($schedule) {
+            $start_time = Carbon::parse($request->start_time)->format('H:i');
+            $end_time = Carbon::parse($request->end_time)->format('H:i');
             $schedule->update([
                 'start_time' => $start_time,
                 'end_time' => $end_time,
@@ -68,7 +82,7 @@ class ScheduleController extends BaseController
             ]);
             return $this->successResponse('Your schedule updated successfully', $schedule, 200);
         } else {
-            $this->errorResponse($schedule, 404);
+            return $this->errorResponse('Schedule not found', 404);
         }
     }
 

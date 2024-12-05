@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class SpecializationController extends BaseController
 {
     /**
-     * Display a listing of the resource.
+     * View all Specializations.
      */
     public function index()
     {
@@ -22,7 +22,7 @@ class SpecializationController extends BaseController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create new Specialization.
      */
     public function store(Request $request)
     {
@@ -53,7 +53,7 @@ class SpecializationController extends BaseController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Specialization.
      */
     public function update(Request $request, string $id)
     {
@@ -80,7 +80,7 @@ class SpecializationController extends BaseController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Specialization.
      */
     public function destroy(string $id)
     {

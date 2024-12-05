@@ -23,34 +23,4 @@ class BaseController extends Controller
         ], $code);
     }
 
-    public function generateAvailableSlots($doctor, $appointment_date)
-{
-
-    $appointment_date = Carbon::parse($appointment_date);
-    $appointment_day = $appointment_date->englishDayOfWeek;
-    $schedule = $doctor->schedules->where('day', $appointment_day)->first();
-    $slots = $schedule->slots;
-    $start_time = Carbon::parse($schedule->start_time);
-    $available_slots = [];
-    for ($i = 0; $i < $slots; $i++) {
-        $available_slots[] = $start_time->format('H:i');
-        $start_time->addMinutes(30);
-    }
-    $booked_slots = Appointment::where('doctor_id', $doctor->id)->whereDate('appointment_date', $appointment_date)
-    ->pluck('start_time')->toArray();
-    $available_slots = array_filter($available_slots, function($slot) use ($booked_slots) {
-        return !in_array($slot, $booked_slots);
-    });
-
-    $booked_slots = Appointment::where('doctor_id', $doctor->id)->whereDate('appointment_date', $appointment_date)
-    ->pluck('start_time')->toArray();
-    $available_slots = array_filter($available_slots, function($slot) use ($booked_slots) {
-        return !in_array($slot, $booked_slots);
-    });
-    return $available_slots;
-}
-
-
-
-
 }

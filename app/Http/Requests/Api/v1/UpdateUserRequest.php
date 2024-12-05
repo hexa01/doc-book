@@ -36,6 +36,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:' . User::class],
             'phone' => 'nullable|string|max:30',
             'address' => 'nullable|string|max:255',
+            'current_password' => 'nullable|string|min:8',
             'password' => 'nullable|string|min:8|confirmed',
         ];
 
