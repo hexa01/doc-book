@@ -18,7 +18,15 @@ class SpecializationController extends BaseController
         if ($specializations->isEmpty()) {
             return $this->errorResponse('No specializations found',404);
         }
-        return $this->successResponse('Specializations retrieved successfully', $specializations);
+
+        $data['specialization'] = $specializations->map(function ($specialization) {
+                return [
+                    'id' => $specialization->id,
+                    'name' => $specialization->name,
+                ];
+            });
+
+        return $this->successResponse('Specializations retrieved successfully', $data['specialization']);
     }
 
     /**

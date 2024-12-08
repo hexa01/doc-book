@@ -65,7 +65,6 @@ class DoctorController extends BaseController
             return $this->errorResponse('This user is not a doctor', 404);
         }
 
-
         if ($request->filled('current_password') && Auth::user()->role !== 'admin') {
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
@@ -77,8 +76,6 @@ class DoctorController extends BaseController
 
         // Prepare the data to update
         $input = $request->only(['name', 'email', 'phone', 'address', 'specialization_id']);
-
-
         if ($request->filled('password')) {
             $input['password'] = Hash::make($request->input('password'));
         }
@@ -109,7 +106,7 @@ class DoctorController extends BaseController
     }
 
         /**
-     * View my profile
+     * View my Profile
      */
     public function view(){
         $doctor = Doctor::with('user')->where('user_id', Auth::user()->id)->first();

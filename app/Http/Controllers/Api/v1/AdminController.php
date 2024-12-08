@@ -34,7 +34,7 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
     }
 
     /**
@@ -71,7 +71,6 @@ class AdminController extends Controller
 
         // Update the user profile with the validated input
         $user->update($input);
-
         return response()->json([
             'success' => true,
             'message' => 'User updated successfully!',

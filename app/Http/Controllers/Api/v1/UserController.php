@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\v1\BaseController;
 use App\Http\Requests\Api\v1\RegisterRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
@@ -12,13 +12,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     /**
      * View all Users.
      */
     public function index()
     {
+
         $users = User::query()->with('doctor','patient')->get();
         if($users->isEmpty()){
             return response()->json(
@@ -27,11 +28,45 @@ class UserController extends Controller
                     'message'=>'No users found',
                 ],200
             );
-        };
+        }
+
+        $data['patients'] = Patient::with('user') // Select only specific user fields
+        ->get()
+        ->map(function ($patient) {
+            return [
+                'id' => $patient->id,
+                'user' => [
+                    'id' => $patient->user->id,
+                    'name' => $patient->user->name,
+                    'email' => $patient->user->email,
+                    'phone' => $patient->user->phone,
+                    'address' => $patient->user->address,
+                    'role' => $patient->user->role
+                ],
+            ];
+        });
+
+
+    $data['doctors'] = Doctor::with('user','specialization')->get()
+        ->map(function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'user' => [
+                    'id' => $doctor->user->id,
+                    'name' => $doctor->user->name,
+                    'email' => $doctor->user->email,
+                    'phone' => $doctor->user->phone,
+                    'address' => $doctor->user->address,
+                    'role' => $doctor->user->role,
+                    'specialization' => $doctor->specialization->name,
+                ],
+            ];
+        });
+
         return response()->json(
             [
-                'message'=>'Fetched Successfully',
-                'users'=>$users,
+                'message'=>'Users Fetched Successfully',
+                'users'=>$data,
             ],200
         );
 
@@ -93,7 +128,31 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $user = User::findOrFail($id);
+            $user_data = [
+                'id' => $user->id,
+                'f_name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'phone' => $user->phone,
+                'address' => $user->address,
+            ];
+            if ($user->role === 'doctor') {
+                $doctor = Doctor::where('user_id', $user->id)->with('specialization')->first();
+                if ($doctor) {
+                    $user_data['specialization'] = $doctor->speciality->name ?? 'Not Available';
+                }
+            }
+
+            return $this->successResponse( 'User details',$user_data);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'No user found'
+            ], 404);
+        }
     }
 
     /**

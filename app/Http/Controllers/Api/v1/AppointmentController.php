@@ -38,11 +38,28 @@ class AppointmentController extends BaseController
             //for admins code coming in future right now forbidden access
             return $this->errorResponse('Forbidden Access', 403);
         }
-
         if ($appointments->isEmpty()) {
             return $this->errorResponse('No appointments found',404);
         }
-        return $this->successResponse('Your appointments retrieved successfully', $appointments, 200);
+
+
+        //for admin
+$data['appointments'] = $appointments->map(function ($appointment) {
+                    return [
+                        'id' => $appointment->id,
+                        'date' => $appointment->appointment_date,
+                        'slot' => $appointment->start_time,
+                        'status' => $appointment->status,
+                        'doctor_id' => $appointment->doctor_id,
+                        'doctor_name' => $appointment->doctor->user->name,
+                        'doctor_specialization' => $appointment->doctor->specialization->name,
+                        'patient_id' => $appointment->patient_id,
+                        'patient_name' => $appointment->patient->user->name,
+                        'patient_email' => $appointment->patient->user->email,
+                    ];
+                });
+
+        return $this->successResponse('Your appointments retrieved successfully', $data, 200);
     }
 
     /**
