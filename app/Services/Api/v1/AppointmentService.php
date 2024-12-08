@@ -11,11 +11,7 @@ class AppointmentService
 
     public function validateAppointmentStatus(Appointment $appointment, Request $request)
     {
-        $request->validate([
-            'status' => 'required|in:completed,missed',
-        ], [
-            'status.in' => 'The status must be updated to either completed or missed.',
-        ]);
+
         if (Carbon::parse($appointment->appointment_date)->isFuture()) {
             return response()->json([
                 'success' => false,
@@ -38,12 +34,36 @@ class AppointmentService
             $start_time->addMinutes(30);
         }
         $booked_slots = Appointment::where('doctor_id', $doctor->id)->whereDate('appointment_date', $appointment_date)
-        ->pluck('start_time')->toArray();
+            ->pluck('start_time')->toArray();
 
-        $available_slots = array_filter($available_slots, function($slot) use ($booked_slots) {
+        $available_slots = array_filter($available_slots, function ($slot) use ($booked_slots) {
             return !in_array($slot, $booked_slots);
         });
         return $available_slots;
+    }
+    public function formatAppointment($appointment)
+    {
+        return [
+            'id' => $appointment->id,
+            'date' => $appointment->appointment_date,
+            'slot' => $appointment->start_time,
+            'status' => $appointment->status,
+            'doctor_id' => $appointment->doctor_id,
+            'doctor_name' => $appointment->doctor->user->name,
+            'doctor_specialization' => $appointment->doctor->specialization->name,
+            'patient_id' => $appointment->patient_id,
+            'patient_name' => $appointment->patient->user->name,
+            'patient_email' => $appointment->patient->user->email,
+        ];
+    }
+    public function formatAppointments($appointments)
+    {
+        $formattedAppointments = [];
 
+        foreach ($appointments as $appointment) {
+            $formattedAppointments[] = $this->formatAppointment($appointment);
+        }
+
+        return $formattedAppointments;
     }
 }

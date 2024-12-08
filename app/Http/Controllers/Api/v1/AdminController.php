@@ -60,10 +60,8 @@ class AdminController extends Controller
                 ], 400);
             }
         }
-
         // Prepare the data to update
         $input = $request->only(['name', 'email', 'phone', 'address']);
-
         // Update the password only if provided
         if ($request->filled('password')) {
             $input['password'] = Hash::make($request->input('password')); // Use Hash::make() for consistency

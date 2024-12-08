@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Validator;
 
 class SpecializationController extends BaseController
 {
+
+    //body ma dekhako xaina docs ma validation arko use
+
     /**
      * View all Specializations.
      */
@@ -67,16 +70,6 @@ class SpecializationController extends BaseController
     {
         if(!$specialization = Specialization::find($id)){
             return $this->errorResponse('Specializations not found',404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:specializations,name,' . $specialization->id,
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => 'Validation failed',
-                'messages' => $validator->errors()
-            ], 422);
         }
         $specialization->update([
             'name' => $request->name,

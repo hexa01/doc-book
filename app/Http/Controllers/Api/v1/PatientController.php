@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api\v1;
+
 use App\Http\Requests\Api\v1\UpdateUserRequest;
 use App\Models\Patient;
 use App\Models\User;
@@ -8,24 +9,44 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Api\v1\BaseController;
-
+use App\Services\Api\v1\UserService;
 
 class PatientController extends BaseController
 {
+
+    protected $userService;
+    // Inject the service via the constructor
+    public function __construct(UserService $userService,)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * View all Patients
      */
     public function index()
     {
-        if(Auth::user()->role !== 'admin'){
-            return $this->errorResponse('Forbidden Access',403);
+        if (Auth::user()->role !== 'admin') {
+            return $this->errorResponse('Forbidden Access', 403);
         }
-        $patients = Patient::with('user')->get();
-
+        $patients = User::where('role', 'patient')->get();
         if ($patients->isEmpty()) {
-            return $this->errorResponse('No patients found',404);
+            return $this->errorResponse('No patients found', 404);
         }
-        return $this->successResponse('Patients retrieved successfully', $patients);
+        $data['patients'] = $patients->map(function ($patient) {
+            return [
+                'id' => $patient->patient->id,
+                'user' => [
+                    'id' => $patient->id,
+                    'name' => $patient->name,
+                    'email' => $patient->email,
+                    'phone' => $patient->phone,
+                    'address' => $patient->address,
+                    'role' => $patient->role,
+                ],
+            ];
+        });
+        return $this->successResponse('Patients retrieved successfully', $data);
     }
 
     /**
@@ -45,21 +66,21 @@ class PatientController extends BaseController
     }
 
     /**
-     * Update Patient.
+     * Update Patient Information
      */
     public function update(UpdateUserRequest $request, string $id)
     {
 
-        if(!($user = User::find($id))){
+        if (!($user = User::find($id))) {
             return $this->errorResponse('User not found', 404);
         };
-        if((Auth::user()->id != $id) && Auth::user()->role !== 'admin'){
+        if ((Auth::user()->id != $id) && Auth::user()->role !== 'admin') {
             return $this->errorResponse('Forbidden Access', 403);
         };
 
         if ($request->filled('current_password') && Auth::user()->role !== 'admin') {
             if (!Hash::check($request->current_password, $user->password)) {
-                return $this->errorResponse('The current password is incorrect.',400);
+                return $this->errorResponse('The current password is incorrect.', 400);
             }
         }
 
@@ -68,11 +89,18 @@ class PatientController extends BaseController
 
         // Update the password only if provided
         if ($request->filled('password')) {
-            $input['password'] = Hash::make($request->input('password'));
+
+            // $input['password'] = Hash::make($request->input('password'));
+            $user->update([
+                'password' => Hash::make($request->input('password')),
+            ]);
+            return $this->successResponse('Password updated successfully.', null);
         }
 
         $user->update($input);
-        return $this->successResponse('User updated successfully!', $user);
+
+        $data['patient'] = $this->userService->formatUser($user);
+        return $this->successResponse('Information updated successfully!', $data);
     }
 
 
@@ -84,11 +112,14 @@ class PatientController extends BaseController
         //
     }
 
-        /**
+    /**
      * View my Profile
      */
-    public function view(){
+    public function view()
+    {
         $patient = Patient::with('user')->where('user_id', Auth::user()->id)->first();
-        return $this->successResponse('Your information retrieved successfully', $patient);
+        $user = User::find(Auth::user()->id);
+        $data['patient'] = $this->userService->formatUser($user);
+        return $this->successResponse('Your information retrieved successfully', $data);
     }
 }

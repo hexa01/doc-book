@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class ScheduleController extends BaseController
 {
     /**
-     * Display logged in doctors schedule.
+     * Display my schedule(doctor).
      */
     public function index()
     {
@@ -41,11 +41,11 @@ class ScheduleController extends BaseController
     }
 
     /**
-     * Update Schedule.
+     * Update my Schedule(doctor)
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $dayName)
     {
-        $day = ucfirst(strtolower($id));
+        $day = ucfirst(strtolower($dayName));
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         if (!in_array($day, $days)) {

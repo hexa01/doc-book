@@ -15,20 +15,28 @@ class DoctorController extends BaseController
 {
 
     /**
-     * Show all doctors.
+     * Show all doctors
      */
     public function index()
     {
-        if(Auth::user()->role !== 'admin'){
-            return $this->errorResponse('Forbidden Access',403);
-        }
-
-        // $doctors = User::where('role', 'doctor')->get();
-        $doctors = Doctor::with('user')->with('specialization')->get();
+        $doctors = Doctor::with('user', 'specialization')->get();
         if ($doctors->isEmpty()) {
-            return $this->errorResponse('No doctors',404);
+            return $this->errorResponse('No doctors found', 404);
         }
-        return $this->successResponse('Doctors retrieved successfully', $doctors);
+        $data['doctors'] = $doctors->map(function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'user' => [
+                    'name' => $doctor->user->name,
+                    'email' => $doctor->user->email,
+                    'phone' => $doctor->user->phone,
+                    'address' => $doctor->user->address,
+                    'role' => $doctor->user->role,
+                    'specialization' => $doctor->specialization->name,
+                ],
+            ];
+        });
+        return $this->successResponse('Doctors retrieved successfully',$data);
     }
 
     /**
@@ -48,21 +56,18 @@ class DoctorController extends BaseController
     }
 
     /**
-     * Update Doctor.
+     * Update Doctors Information
      */
     public function update(UpdateUserRequest $request, string $id)
     {
-        if(!$user = User::find($id)){
-            return $this->errorResponse('User not found', 404);
-        };
-
-        if((Auth::user()->id != $id) && Auth::user()->role !== 'admin'){
-            return $this->errorResponse('Forbidden Access', 403);
-        };
+        $user = User::find($id);
+        if(!$this->userVerify($user)){
+            return $this->errorResponse('Unauthorized Access', 403);
+        }
 
         $doctor = Doctor::where('user_id', $id)->first();
         if (!$doctor) {
-            return $this->errorResponse('This user is not a doctor', 404);
+            return $this->errorResponse('UnAuthorized Access', 404);
         }
 
         if ($request->filled('current_password') && Auth::user()->role !== 'admin') {
@@ -79,21 +84,26 @@ class DoctorController extends BaseController
         if ($request->filled('password')) {
             $input['password'] = Hash::make($request->input('password'));
         }
-
         $user->update($input);
-
-        if ($request->filled('specialization_id')) {
+        if ($request->filled('specialization_id') && Auth::user()->role === 'admin') {
             $doctor->update([
                 'specialization_id' => $request('specialization_id')
             ]);
         }
-
-        $doctor = Doctor::with('user')->where('user_id', $id)->first();
+        $data['doctor_id'] = $doctor->id;
+        $data['doctor'] = [
+            'id' => $doctor->user->id,
+            'name' => $doctor->user->name,
+            'email' => $doctor->user->email,
+            'phone' => $doctor->user->phone,
+            'address' => $doctor->user->address,
+            'role' => $doctor->user->role,
+            'specialization' => $doctor->specialization->name];
 
         return response()->json([
             'success' => true,
-            'message' => 'User updated successfully!',
-            'data' => $doctor
+            'message' => 'Doctor information updated successfully!',
+            'data' => $data
         ], 200);
     }
 
@@ -110,11 +120,20 @@ class DoctorController extends BaseController
      */
     public function view(){
         $doctor = Doctor::with('user')->where('user_id', Auth::user()->id)->first();
-        return $this->successResponse('Your information retrieved successfully', $doctor);
+        $data['doctor_id'] = $doctor->id;
+        $data['doctor'] = [
+            'id' => $doctor->user->id,
+            'name' => $doctor->user->name,
+            'email' => $doctor->user->email,
+            'phone' => $doctor->user->phone,
+            'address' => $doctor->user->address,
+            'role' => $doctor->user->role,
+            'specialization' => $doctor->specialization->name];
+        return $this->successResponse('Your information retrieved successfully', $data);
     }
 
         /**
-     * View all patients
+     * View my patients
      */
     public function viewPatients()
     {

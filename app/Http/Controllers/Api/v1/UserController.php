@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\v1\BaseController;
 use App\Http\Requests\Api\v1\RegisterRequest;
+use App\Http\Requests\Api\v1\UpdateUserRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends BaseController
@@ -124,15 +126,17 @@ class UserController extends BaseController
     }
 
     /**
-     * Display the specified resource.
+     * View User.
      */
     public function show(string $id)
     {
         try {
-            $user = User::findOrFail($id);
+            if(!$user = User::find($id)){
+                return $this->errorResponse("There is no user with such id.", 404);
+            }
             $user_data = [
                 'id' => $user->id,
-                'f_name' => $user->name,
+                'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
                 'phone' => $user->phone,
@@ -183,6 +187,31 @@ class UserController extends BaseController
                 'message'=>'User Deleted Successfully',
             ],200
         );
+    }
+
+    public function changePassword(UpdateUserRequest $request, string $id)
+    {
+
+        if(!$user = User::find($id)){
+            return $this->errorResponse('User not found', 404);
+        };
+
+        if((Auth::user()->id != $id) && Auth::user()->role !== 'admin'){
+            return $this->errorResponse('Forbidden Access', 403);
+        };
+
+        if ($request->filled('current_password') && Auth::user()->role !== 'admin') {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The current password is incorrect.'
+                ], 400);
+            }
+        }
+        if ($request->filled('password')) {
+            $input['password'] = Hash::make($request->input('password'));
+        }
+
 
 
     }

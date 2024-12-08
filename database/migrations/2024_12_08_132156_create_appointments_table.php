@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('appointment_date');
             $table->time('start_time');
             $table->enum('status',['pending','booked','missed','completed'])->default('pending');
-            $table->text('history')->nullable();
+            $table->text('doctor_message')->nullable();
             $table->timestamps();
         });
     }

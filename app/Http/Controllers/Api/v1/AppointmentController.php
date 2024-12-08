@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\v1\BaseController;
+use App\Http\Requests\Api\v1\AppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AppointmentController extends BaseController
 {
-    //appointment controller route sabaile access garna milxa aile fix it
 
     protected $appointmentService;
     // Inject the service via the constructor
@@ -24,7 +24,7 @@ class AppointmentController extends BaseController
     }
 
     /**
-     * View Appointments
+     * View All Appointments
      */
     public function index()
     {
@@ -34,50 +34,24 @@ class AppointmentController extends BaseController
         } elseif (Auth::user()->role == 'doctor') {
             $id = Auth::user()->doctor->id;
             $appointments = Appointment::where('doctor_id', $id)->orderBy('appointment_date', 'desc')->orderBy('start_time', 'asc')->get();
-        } else {
-            //for admins code coming in future right now forbidden access
-            return $this->errorResponse('Forbidden Access', 403);
+        } elseif (Auth::user()->role == 'admin') {
+            $appointments = Appointment::all();
         }
         if ($appointments->isEmpty()) {
-            return $this->errorResponse('No appointments found',404);
+            return $this->errorResponse('No appointments found', 404);
         }
-
-
         //for admin
-$data['appointments'] = $appointments->map(function ($appointment) {
-                    return [
-                        'id' => $appointment->id,
-                        'date' => $appointment->appointment_date,
-                        'slot' => $appointment->start_time,
-                        'status' => $appointment->status,
-                        'doctor_id' => $appointment->doctor_id,
-                        'doctor_name' => $appointment->doctor->user->name,
-                        'doctor_specialization' => $appointment->doctor->specialization->name,
-                        'patient_id' => $appointment->patient_id,
-                        'patient_name' => $appointment->patient->user->name,
-                        'patient_email' => $appointment->patient->user->email,
-                    ];
-                });
-
-        return $this->successResponse('Your appointments retrieved successfully', $data, 200);
+        $data['appointments'] = $this->appointmentService->formatAppointments($appointments);
+        return $this->successResponse('Appointments retrieved successfully', $data, 200);
     }
 
     /**
      * Create Appointment
      */
-    public function store(Request $request)
+    public function store(AppointmentRequest $request)
     {
-        $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
-            'appointment_date' => 'required|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
-            'slot' => 'required|date_format:H:i',
-            'patient_id' => ['nullable', 'exists:patients,id', function ($attribute,$value, $fail){
-                if (Auth::user()->role === 'admin' && empty($value)){
-                    return $this->errorResponse('Please input patient id.');
-                }
-            }]
-        ]);
-        if(!$doctor = Doctor::find($request->doctor_id)){
+
+        if (!$doctor = Doctor::find($request->doctor_id)) {
             $this->errorResponse('The selected doctor id doesnt exist', 404);
         }
         $appointment_date = Carbon::parse($request->appointment_date);
@@ -90,8 +64,11 @@ $data['appointments'] = $appointments->map(function ($appointment) {
             return $this->errorResponse('This slot is not available', 404);
         }
 
-        $patientId = (Patient::where('user_id', Auth::id())->first())->id;
-        if(Auth::user()->role)
+        if (Auth::user()->role == 'admin') {
+            $patientId = $request->patient_id;
+        } else {
+            $patientId = (Patient::where('user_id', Auth::id())->first())->id;
+        }
         $appointment = Appointment::create([
             'patient_id' => $patientId,
             'doctor_id' => $request->doctor_id,
@@ -105,16 +82,25 @@ $data['appointments'] = $appointments->map(function ($appointment) {
             'amount' => $price,
             'status' => 'unpaid',
         ]);
-        return $this->successResponse('Appointment Created Successfully',$appointment);
+        $data['appointment'] = $this->appointmentService->formatAppointment($appointment);
 
+        return $this->successResponse('Appointment Created Successfully', $data);
     }
 
     /**
-     * Display the specified resource.
+     * View Appointment Information
      */
     public function show(string $id)
     {
-        //
+        $appointment = Appointment::find($id);
+        if (!$this->verify($appointment,'doctor_id')) {
+            return $this->errorResponse('Unauthorized access', 403);
+        }
+        $data['appointment'] = $this->appointmentService->formatAppointment($appointment);
+        if($appointment->status == 'completed'){
+            $data['doctor_message'] = $appointment->doctor_message;
+        }
+        return $this->successResponse('Appointment information retrieved successfully.',$data);
     }
 
     /**
@@ -122,24 +108,23 @@ $data['appointments'] = $appointments->map(function ($appointment) {
      */
     public function update(Request $request, string $id)
     {
-        if(!($appointment = Appointment::find($id))){
-            return $this->errorResponse('Appointment not found', 404);
+        $appointment = Appointment::find($id);
+        if (!$this->verify($appointment, 'patient_id')) {
+            return $this->errorResponse('Unauthorized access', 403);
         }
-
-        $payment = Payment::where('appointment_id',$appointment->id)->first();
-        if ($payment->status == 'paid') {
-            return $this->errorResponse('Cannot update already booked appointment', 403);
-        }
-        elseif ($appointment->status == 'completed') {
+        $payment = Payment::where('appointment_id', $appointment->id)->first();
+        if ($appointment->status == 'completed') {
             return $this->errorResponse('Cannot update already completed appointment', 403);
+        } elseif ($payment->status == 'paid') {
+            return $this->errorResponse('Cannot update already booked appointment', 403);
         }
 
         $doctor = $appointment->doctor;
         $request->validate([
             'appointment_date' => 'nullable|date|after_or_equal:' . Carbon::tomorrow()->toDateString(),
             'slot' => 'required|date_format:H:i',
-            'patient_id' => ['nullable', 'exists:patients,id', function ($attribute,$value, $fail){
-                if (Auth::user()->role === 'admin' && empty($value)){
+            'patient_id' => ['nullable', 'exists:patients,id', function ($attribute, $value, $fail) {
+                if (Auth::user()->role === 'admin' && empty($value)) {
                     return $this->errorResponse('Please input patient id.');
                 }
             }]
@@ -147,7 +132,6 @@ $data['appointments'] = $appointments->map(function ($appointment) {
         $slot = Carbon::parse($request->slot)->format('H:i');
         $appointment_date = Carbon::parse($request->appointment_date);
         $available_slots = $this->appointmentService->generateAvailableSlots($doctor, $appointment_date);
-
         if (empty($available_slots)) {
             return $this->errorResponse('There is no slot available for this day,Please choose another day', 404);
         }
@@ -156,12 +140,12 @@ $data['appointments'] = $appointments->map(function ($appointment) {
             return $this->errorResponse('This slot is not available', 404);
         }
 
-            $appointment->update([
-                'appointment_date' => $appointment_date,
-                'start_time' => $slot,
-            ]);
-            return $this->successResponse('Appointment updated successfully.', $appointment);
-
+        $appointment->update([
+            'appointment_date' => $appointment_date,
+            'start_time' => $slot,
+        ]);
+        $data['appointment'] = $this->appointmentService->formatAppointment($appointment);
+        return $this->successResponse('Appointment updated successfully.', $data);
     }
 
     /**
@@ -169,48 +153,70 @@ $data['appointments'] = $appointments->map(function ($appointment) {
      */
     public function destroy(string $id)
     {
-        if(!($appointment = Appointment::find($id))){
-            return $this->errorResponse('Appointment not found', 404);
+        $appointment = Appointment::find($id);
+        if (!$this->verify($appointment, 'patient_id')) {
+            return $this->errorResponse('Unauthorized access', 403);
         }
-        if($appointment->delete()){
+        if ($appointment->status == 'completed' && Auth::user()->role != 'admin') {
+            return $this->errorResponse('Cannot delete already completed appointment', 403);
+        }
+        if ($appointment->delete()) {
             return $this->successResponse('Appointment deleted successfully', null);
         }
     }
 
-        /**
+    /**
      * Update Appointment Status
      */
     public function updateAppointmentStatus(Request $request, string $id)
     {
-        $doctor = Auth::user()->doctor;
-        if(!($appointment = Appointment::where('doctor_id', $doctor->id)->where('id', $id)->first())){
-            return $this->errorResponse("Your appointment not found by this id", 404);
+        $appointment = Appointment::find($id);
+        if (!$this->verify($appointment, 'doctor_id')) {
+            return $this->errorResponse('Unauthorized access', 403);
         }
-
+        $request->validate([
+            'status' => 'required|in:completed,missed',
+        ], [
+            'status.in' => 'The status must be updated to either completed or missed.',
+        ]);
         $this->appointmentService->validateAppointmentStatus($appointment, $request);
 
         $appointment->update([
-            'status'=> $request->status,
+            'status' => $request->status,
         ]);
-
-        return $this->successResponse('Patients information retrieved successfully', $appointment);
+        $data['appointment'] = $this->appointmentService->formatAppointment($appointment);
+        return $this->successResponse('Appointment status updated successfully.', $appointment);
     }
 
-        /**
+    /**
      * Update History of Completed Appointments
      */
-    public function updateHistory(Request $request, string $id)
+    public function updateDoctorMessage(Request $request, string $id)
     {
         $doctor = Auth::user()->doctor;
-        if(!($appointment = Appointment::where('doctor_id', $doctor->id)->where('id', $id)->first())){
-            return $this->errorResponse("Your appointment not found by this id", 404);
+        $appointment = Appointment::find($id);
+
+        if (!$this->verify($appointment, 'doctor_id')) {
+            return $this->errorResponse('Unauthorized access', 403);
         }
+        if ($appointment->status != 'completed') {
+            return $this->errorResponse('Cannot update message without completing appointment', 403);
+        }
+
         $request->validate([
-            'history' => 'required|string|max:1000',
+            'doctor_message' => 'required|string|max:1000',
         ]);
         $appointment->update([
-            'history' => $request->history,
+            'doctor_message' => $request->doctor_message,
         ]);
-        return $this->successResponse('Patient History updated successfully.', $appointment);
+        $data['appointment'] = [
+            'id' => $appointment->id,
+            'date' => $appointment->appointment_date,
+            'status' => $appointment->status,
+            'patient_id' => $appointment->patient_id,
+            'patient_name' => $appointment->patient->user->name,
+            'history' => $appointment->doctor_message,
+        ];
+        return $this->successResponse('Doctor message to the patient updated successfully.', $data);
     }
 }

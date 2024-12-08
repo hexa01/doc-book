@@ -26,7 +26,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
         Route::get('/specializations', [SpecializationController::class, 'index'])->name('api.specializations.index');
         Route::apiResource('appointments',AppointmentController::class);
-
+        Route::get('/doctors', [DoctorController::class, 'index'])->name('api.doctors.index');
         Route::middleware('role:patient')->group( function () {
             Route::get('/patient-view', [PatientController::class, 'view'])->name('api.patients.view');
         });
@@ -40,22 +40,22 @@ Route::prefix('v1')->group(function () {
             Route::post('/specializations', [SpecializationController::class, 'store'])->name('api.specializations.store');
             Route::put('/specializations/{specialization}', [SpecializationController::class, 'update'])->name('api.specializations.update');
             Route::delete('/specializations/{specialization}', [SpecializationController::class, 'destroy'])->name('api.specializations.delete');
-            Route::apiResource('users',UserController::class);
-            Route::apiResource('admins',AdminController::class);
+            Route::apiResource('users',UserController::class)->except('update');
+            Route::apiResource('admins',AdminController::class)->only(['index','update']);
         });
 
         Route::middleware('role:admin,doctor')->group( function () {
-            Route::apiResource('doctors',DoctorController::class);
+            Route::put('/doctors/{doctor}', [DoctorController::class, 'update'])->name('api.doctors.update');
             Route::put('/appointment/status/{appointment}', [AppointmentController::class, 'updateAppointmentStatus'])->name('api.appointment.status.update');
-            Route::put('/appointment/history/{appointment}', [AppointmentController::class, 'updateHistory'])->name('api.history.update');
+            Route::put('/appointment/message/{appointment}', [AppointmentController::class, 'updateDoctorMessage'])->name('api.message.update');
         });
 
         Route::middleware('role:admin,patient')->group( function () {
-            Route::apiResource('patients',PatientController::class);
-            Route::apiResource('slots',SlotController::class);
+            Route::apiResource('patients',PatientController::class)->only(['index','update']);
+            Route::apiResource('slots',SlotController::class)->only(['index']);
         });
 
-        Route::apiResource('/schedules',ScheduleController::class)->middleware('role:doctor');
+        Route::apiResource('/schedules',ScheduleController::class)->only(['index','update'])->middleware('role:doctor');
 
     });
 });
