@@ -78,11 +78,14 @@ class SpecializationController extends BaseController
     /**
      * Update Specialization.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $specialization_name)
     {
-        if(!$specialization = Specialization::find($id)){
-            return $this->errorResponse('Specializations not found',404);
+        $previous_name = ucfirst(strtolower($specialization_name));
+        $specialization = Specialization::where('name', $previous_name)->first();
+        if (!$specialization) {
+            return $this->errorResponse('Specialization not found', 404);
         }
+
         $request->validate([
             'name' => [
                 'required',
@@ -117,17 +120,14 @@ class SpecializationController extends BaseController
     }
 
     /**
-     * Delete Specialization.
+     * Delete a Specialization
      */
-    public function destroy(string $id)
+    public function destroy(string $specialization_name)
     {
-        if(!$specialization = Specialization::find($id)){
-            return response()->json(
-                [
-                    'success'=>false,
-                    'message'=>'Specialization not found',
-                ],404
-            );
+        $previous_name = ucfirst(strtolower($specialization_name));
+        $specialization = Specialization::where('name', $previous_name)->first();
+        if (!$specialization) {
+            return $this->errorResponse('Specialization not found', 404);
         }
         $specialization->delete();
         return response()->json(
