@@ -8,7 +8,6 @@
     </div>
     @endif
     <h1 class="text-2xl font-semibold mb-6">My Schedule</h1>
-    <a href="{{ route('schedules.create') }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-4">Add New Slot</a>
     <table class="min-w-full table-auto" style="margin-top: 10px;">
         <thead>
             <tr class="bg-gray-100 text-left">
@@ -26,11 +25,6 @@
                 <td class="px-4 py-2">{{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}</td>
                 <td class="px-4 py-2 flex space-x-2">
                     <a href="{{ route('schedules.edit', $schedule->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
-                    <form action="{{ route('schedules.destroy', $schedule->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                    </form>
                 </td>
             </tr>
             @endforeach

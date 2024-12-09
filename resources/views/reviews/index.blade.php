@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="container mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
-    <h1 class="text-2xl font-semibold mb-6">Your Past Reviews</h1>
+    <h1 class="text-2xl font-semibold mb-6">Your Past Messages from doctor</h1>
 
     @if($appointments->isEmpty())
         <div class="bg-yellow-100 p-4 rounded-md text-yellow-700">
-            No appointments found with reviews.
+            No appointments found with messages.
         </div>
     @else
         <table class="min-w-full table-auto">
@@ -15,7 +15,7 @@
                     <th class="px-4 py-2">Doctor's Name</th>
                     <th class="px-4 py-2">Specialization</th>
                     <th class="px-4 py-2">Appointment Date</th>
-                    <th class="px-4 py-2">Review</th>
+                    <th class="px-4 py-2">Doctor Message</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,10 +25,10 @@
                         <td class="px-4 py-2">{{ $appointment->doctor->specialization->name }}</td>
                         <td class="px-4 py-2">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d-m-Y') }}</td>
                         <td class="px-4 py-2">
-                            @if($appointment->review)
-                                {{ $appointment->review }}
+                            @if($appointment->doctor_message)
+                                {{ $appointment->doctor_message }}
                             @else
-                                No review yet.
+                                No Message yet.
                             @endif
                         </td>
                     </tr>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -57,10 +58,22 @@ class RegisteredUserController extends Controller
             if ($request->has('specialization_id')) {
                 $specialization_id = $request->specialization_id;
             }
-            Doctor::create([
+
+            $doctor = Doctor::create([
                 'user_id' => $user->id,
                 'specialization_id'  => $specialization_id,
             ]);
+
+            $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            foreach ($days as $day) {
+                Schedule::create([
+                    'doctor_id' => $doctor->id,
+                    'day' => $day,
+                    'start_time' => '10:00',
+                    'end_time' => '17:00',
+                    'slots' => 14,
+                ]);
+            }
         } elseif ($user->role == 'admin') {
 
         }

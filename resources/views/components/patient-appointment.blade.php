@@ -44,13 +44,13 @@
                     <span class="text-green-600">Completed</span>
                     @elseif($appointment->status == 'missed')
                     <span class="text-red-600">Missed</span>
-                    @elseif($appointment->status == 'paid')
-                    <span class="text-green-600">Paid</span>
+                    @elseif($appointment->status == 'pending')
+                    <span class="text-green-600">Pending</span>
                     @endif
                 </td>
                 <td class="px-4 py-2 flex space-x-2">
                 @if($appointment->status == 'paid')
-                    <button class="px-4 py-2 bg-green-500 text-white rounded cursor-not-allowed" disabled>Paid</button>
+                    <label class="px-4 py-2 bg-green-500 text-white">Paid</label>
                     @else
                     <form action="{{ route('esewaPay', $appointment) }}" method="POST">
                         @csrf
@@ -59,9 +59,9 @@
                     </form>
                     @endif
                     @if($appointment->status == 'completed')
-                    <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Edit</button>
-                    <button class="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed" disabled>Delete</button>
-                    @elseif($appointment->status == 'booked')
+                    <label class="px-4 py-2 bg-gray-300 text-gray-600 rounded">Edit</label>
+                    <label class="px-4 py-2 bg-gray-300 text-gray-600 rounded">Delete</label>
+                    @elseif($appointment->status == 'pending')
                     <a href="{{ route('appointments.edit', $appointment->id) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
                     <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
                         @csrf

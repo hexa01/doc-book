@@ -49,7 +49,7 @@
                         <td class="py-3 px-4 border">{{ $loop->iteration }}</td>
                         <td class="py-3 px-4 border">{{ $specialization->name }}</td>
                         <td class="py-3 px-4 border">
-                            <a href="{{ route('specializations.edit', $specialization->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</a>
+                            {{-- <a href="{{ route('specializations.edit', $specialization->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</a> --}}
                             <form method="POST" action="{{ route('specializations.destroy', $specialization->id) }}" class="inline">
                                 @csrf
                                 @method('DELETE')

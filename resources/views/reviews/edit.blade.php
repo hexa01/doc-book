@@ -16,7 +16,7 @@
         @method('PUT')
         <div class="mb-4">
             <label for="review" class="block text-gray-700">Review:</label>
-            <textarea id="review" name="review" class="w-full p-3 border border-gray-300 rounded-md" rows="5">{{ old('review', $appointment->review) }}</textarea>
+            <textarea id="review" name="review" class="w-full p-3 border border-gray-300 rounded-md" rows="5">{{ old('review', $appointment->doctor_message) }}</textarea>
         </div>
         <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save Review</button>
     </form>

@@ -14,7 +14,7 @@
                 <tr class="bg-gray-100 text-left">
                     <th class="px-4 py-2">Patient Name</th>
                     <th class="px-4 py-2">Last Appointment Date</th>
-                    <th class="px-4 py-2">Review</th>
+                    <th class="px-4 py-2">Doctor Message</th>
                     <th class="px-4 py-2">Actions</th>
                 </tr>
             </thead>
@@ -34,20 +34,20 @@
                                 {{ \Carbon\Carbon::parse($lastAppointment->appointment_date)->format('d-m-Y') }}
                             </td>
                             <td class="px-4 py-2">
-                                @if($lastAppointment->review)
-                                    <span class="text-green-600">Reviewed</span>
+                                @if($lastAppointment->doctor_message)
+                                    <span class="text-green-600">Message given</span>
                                 @else
-                                    <span class="text-yellow-600">No Review</span>
+                                    <span class="text-yellow-600">No Message</span>
                                 @endif
                             </td>
                             <td class="px-4 py-2">
 
-                                @if($lastAppointment->review)
-                                    <a href="{{ route('appointments.editReview', $lastAppointment) }}" 
-                                       class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit Review</a>
+                                @if($lastAppointment->doctor_message)
+                                    <a href="{{ route('appointments.editReview', $lastAppointment) }}"
+                                       class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Edit Message</a>
                                 @else
-                                    <a href="{{ route('appointments.editReview', $lastAppointment) }}" 
-                                       class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Add Review</a>
+                                    <a href="{{ route('appointments.editReview', $lastAppointment) }}"
+                                       class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Add Message</a>
                                 @endif
                             </td>
                         </tr>

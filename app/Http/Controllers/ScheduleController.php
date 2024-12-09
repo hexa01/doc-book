@@ -37,35 +37,6 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        abort_if(!((Auth::user()->role == 'doctor' )), 404);
-        $schedule = Schedule::where('doctor_id', Auth::user()->doctor->id)->where('day',$request->day)->get();
-        if ($schedule->isNotEmpty()) {
-            return redirect()->route('schedules.index')->with('error', 'Schedule already exists for this day.');
-        }
-
-        $request->validate([
-            'day' => 'required|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-        ]);
-
-        $startTime = Carbon::parse($request->start_time);
-        $endTime = Carbon::parse($request->end_time);
-        $duration = $startTime->diffInMinutes($endTime);
-        $slots = $duration / 30;
-
-
-
-
-        Schedule::create([
-            'doctor_id' => Auth::user()->doctor->id,
-            'day' => $request->day,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'slots' => $slots,
-        ]);
-
-        return redirect()->route('schedules.index')->with('message', 'Schedule created successfully.');
     }
 
     /**
@@ -118,10 +89,6 @@ class ScheduleController extends Controller
      */
     public function destroy(string $id)
     {
-        $schedule = Schedule::findOrFail($id);
-        abort_if(!((Auth::user()->id == $schedule->doctor->user->id)), 404);
-        $schedule->delete();
-        return redirect()->route('schedules.index')->with('message', 'Schedule deleted successfully.');
 
     }
 }

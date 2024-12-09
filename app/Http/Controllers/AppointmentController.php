@@ -263,7 +263,7 @@ class AppointmentController extends Controller
         ]);
 
         $appointment->update([
-            'history' => $request->review,
+            'doctor_message' => $request->review,
         ]);
 
 
