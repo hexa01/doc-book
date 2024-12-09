@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends BaseController
 {
     /**
-     * View all Users.
+     * View all Doctors and Patients
      */
     public function index()
     {
@@ -36,9 +36,9 @@ class UserController extends BaseController
         ->get()
         ->map(function ($patient) {
             return [
-                'id' => $patient->id,
+                'user_id' => $patient->user->id,
                 'user' => [
-                    'id' => $patient->user->id,
+                    'patient_id' => $patient->id,
                     'name' => $patient->user->name,
                     'email' => $patient->user->email,
                     'phone' => $patient->user->phone,
@@ -52,9 +52,9 @@ class UserController extends BaseController
     $data['doctors'] = Doctor::with('user','specialization')->get()
         ->map(function ($doctor) {
             return [
-                'id' => $doctor->id,
+                'user_id' => $doctor->user->id,
                 'user' => [
-                    'id' => $doctor->user->id,
+                    'doctor_id' => $doctor->id,
                     'name' => $doctor->user->name,
                     'email' => $doctor->user->email,
                     'phone' => $doctor->user->phone,
@@ -135,7 +135,7 @@ class UserController extends BaseController
                 return $this->errorResponse("There is no user with such id.", 404);
             }
             $user_data = [
-                'id' => $user->id,
+                'user_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
@@ -145,8 +145,12 @@ class UserController extends BaseController
             if ($user->role === 'doctor') {
                 $doctor = Doctor::where('user_id', $user->id)->with('specialization')->first();
                 if ($doctor) {
-                    $user_data['specialization'] = $doctor->speciality->name ?? 'Not Available';
+                    $user_data['doctor_id'] = $doctor->id ?? 'Not Available';
+                    $user_data['specialization'] = $doctor->specialization->name ?? 'Not Available';
                 }
+            }
+            if($user->role === 'patient'){
+                $user_data['patient_id'] = $user->patient->id ?? 'Not Available';
             }
 
             return $this->successResponse( 'User details',$user_data);
@@ -189,30 +193,31 @@ class UserController extends BaseController
         );
     }
 
-    public function changePassword(UpdateUserRequest $request, string $id)
+        /**
+     * Reset User Password
+     */
+    public function resetPassword(Request $request, string $id)
     {
+
 
         if(!$user = User::find($id)){
             return $this->errorResponse('User not found', 404);
-        };
-
-        if((Auth::user()->id != $id) && Auth::user()->role !== 'admin'){
-            return $this->errorResponse('Forbidden Access', 403);
-        };
-
-        if ($request->filled('current_password') && Auth::user()->role !== 'admin') {
-            if (!Hash::check($request->current_password, $user->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'The current password is incorrect.'
-                ], 400);
-            }
         }
+        $request->validate([
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
         if ($request->filled('password')) {
             $input['password'] = Hash::make($request->input('password'));
         }
+        $data['user'] = [
+            'id' => $user->id,
+            'name' =>$user->name,
+            'role' => $user->role,
+        ];
+        return $this->successResponse('Password reset successsfully',$data);
 
 
 
     }
+
 }

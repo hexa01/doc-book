@@ -43,9 +43,14 @@ class ScheduleController extends BaseController
     /**
      * Update my Schedule(doctor)
      */
-    public function update(Request $request, string $dayName)
+    public function update(Request $request, string $day_name)
     {
-        $day = ucfirst(strtolower($dayName));
+        $request->validate([
+            'start_time' => 'required|string|date_format:H:i',
+            'end_time' => 'required|string|date_format:H:i|after:start_time',
+        ]);
+        $day = ucfirst(strtolower($day_name));
+
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         if (!in_array($day, $days)) {
@@ -55,7 +60,7 @@ class ScheduleController extends BaseController
         $doctor = Auth::user()->doctor;
         $doctor_id = Auth::user()->doctor->id;
 
-        $appointment_dates = Appointment::where('doctor_id', $doctor_id)->distinct()->pluck('appointment_date')->toArray();
+        $appointment_dates = Appointment::where('doctor_id', $doctor_id)->whereDate('appointment_date', '>', now())->distinct()->pluck('appointment_date')->toArray();
         $appointment_days = array_map(function ($date) {
             return Carbon::parse($date)->englishDayOfWeek;
         }, $appointment_dates);
@@ -80,7 +85,13 @@ class ScheduleController extends BaseController
                 'end_time' => $end_time,
                 'slots' => $slots,
             ]);
-            return $this->successResponse('Your schedule updated successfully', $schedule, 200);
+            $data['schedule'] = [
+                'day_name' => $schedule->day,
+                'start_time' => $schedule->start_time,
+                'end_time' => $schedule->end_time,
+                'slots' => $schedule->slots,
+            ];
+            return $this->successResponse('Your schedule updated successfully', $data);
         } else {
             return $this->errorResponse('Schedule not found', 404);
         }

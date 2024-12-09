@@ -93,7 +93,7 @@ class AppointmentController extends BaseController
     public function show(string $id)
     {
         $appointment = Appointment::find($id);
-        if (!$this->verify($appointment,'doctor_id')) {
+        if (!$this->verify($appointment,'doctor_id') && !$this->verify($appointment,'patient_id')) {
             return $this->errorResponse('Unauthorized access', 403);
         }
         $data['appointment'] = $this->appointmentService->formatAppointment($appointment);
@@ -130,7 +130,13 @@ class AppointmentController extends BaseController
             }]
         ]);
         $slot = Carbon::parse($request->slot)->format('H:i');
-        $appointment_date = Carbon::parse($request->appointment_date);
+        if ($request->has('appointment_date') && !empty($request->appointment_date)) {
+            $appointment_date = Carbon::parse($request->appointment_date);
+        } else {
+            $appointment_date = $appointment->appointment_date;
+        }
+
+
         $available_slots = $this->appointmentService->generateAvailableSlots($doctor, $appointment_date);
         if (empty($available_slots)) {
             return $this->errorResponse('There is no slot available for this day,Please choose another day', 404);
@@ -139,6 +145,8 @@ class AppointmentController extends BaseController
         if (!in_array($slot, $available_slots)) {
             return $this->errorResponse('This slot is not available', 404);
         }
+
+
 
         $appointment->update([
             'appointment_date' => $appointment_date,
@@ -185,11 +193,11 @@ class AppointmentController extends BaseController
             'status' => $request->status,
         ]);
         $data['appointment'] = $this->appointmentService->formatAppointment($appointment);
-        return $this->successResponse('Appointment status updated successfully.', $appointment);
+        return $this->successResponse('Appointment status updated successfully.', $data);
     }
 
     /**
-     * Update History of Completed Appointments
+     * Update Doctor Messsage of Completed Appointments
      */
     public function updateDoctorMessage(Request $request, string $id)
     {

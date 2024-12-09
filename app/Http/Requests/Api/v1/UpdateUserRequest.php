@@ -24,13 +24,6 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules()
     {
-        $userId = $this->route('id');
-        if (!($user = User::find($userId))){
-
-        }
-
-
-
         $rules = [
             'name' => 'nullable|string|max:255',
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:' . User::class],

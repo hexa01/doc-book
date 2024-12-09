@@ -45,7 +45,7 @@ class AppointmentService
     {
         return [
             'id' => $appointment->id,
-            'date' => $appointment->appointment_date,
+            'date' => Carbon::parse($appointment->appointment_date)->format('Y-m-d'),
             'slot' => $appointment->start_time,
             'status' => $appointment->status,
             'doctor_id' => $appointment->doctor_id,

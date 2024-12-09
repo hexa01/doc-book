@@ -81,8 +81,13 @@ class DoctorController extends BaseController
 
         // Prepare the data to update
         $input = $request->only(['name', 'email', 'phone', 'address', 'specialization_id']);
+
         if ($request->filled('password')) {
-            $input['password'] = Hash::make($request->input('password'));
+            $user->update([
+                'password' => Hash::make($request->input('password')),
+            ]);
+            return $this->successResponse('Password updated successfully.', null);
+
         }
         $user->update($input);
         if ($request->filled('specialization_id') && Auth::user()->role === 'admin') {
@@ -90,9 +95,9 @@ class DoctorController extends BaseController
                 'specialization_id' => $request('specialization_id')
             ]);
         }
-        $data['doctor_id'] = $doctor->id;
+        $data['user_id'] = $doctor->user->id;
         $data['doctor'] = [
-            'id' => $doctor->user->id,
+            'doctor_id' => $doctor->id,
             'name' => $doctor->user->name,
             'email' => $doctor->user->email,
             'phone' => $doctor->user->phone,
@@ -120,9 +125,9 @@ class DoctorController extends BaseController
      */
     public function view(){
         $doctor = Doctor::with('user')->where('user_id', Auth::user()->id)->first();
-        $data['doctor_id'] = $doctor->id;
+        $data['user_id'] = $doctor->user->id;
         $data['doctor'] = [
-            'id' => $doctor->user->id,
+            'doctor_id' => $doctor->id,
             'name' => $doctor->user->name,
             'email' => $doctor->user->email,
             'phone' => $doctor->user->phone,
@@ -155,6 +160,20 @@ class DoctorController extends BaseController
 
         return $this->successResponse('Patients information retrieved successfully', $patientsInfo);
     }
+
+    // public function search(Request $request)
+    // {
+    //     $query = $request->get('query');
+
+    //     $doctors = Doctor::with(['user', 'speciality', 'appointmentSlots'])
+    //         ->whereHas('user', function ($q) use ($query) {
+    //             $q->where('f_name', 'like', "%$query%")
+    //               ->orWhere('l_name', 'like', "%$query%");
+    //         })
+    //         ->get();
+
+    //     return response()->json(['doctors' => $doctors]);
+    // }
 
 
 }

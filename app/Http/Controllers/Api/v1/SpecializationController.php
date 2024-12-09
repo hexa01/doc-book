@@ -38,21 +38,33 @@ class SpecializationController extends BaseController
     public function store(Request $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:specializations,name',
+        $request->validate([
+            'name' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    // Format the name as UC first
+                    $formattedName = ucfirst(strtolower($value));
+
+                    // Check if the name already exists in the database, case-insensitively
+                    $existingSpecialization = \App\Models\Specialization::whereRaw('LOWER(name) = ?', [strtolower($formattedName)])->first();
+
+                    if ($existingSpecialization) {
+                        $fail($attribute.' is already taken.');
+                    }
+                },
+            ],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => 'Validation failed',
-                'messages' => $validator->errors()
-            ], 422);
-        }
-
+        $specialization_name = ucfirst(strtolower($request->name));
         $specialization = Specialization::create([
-            'name' => $request->name,
+            'name' => $specialization_name,
         ]);
-        return $this->successResponse('Specializations created successfully', $specialization, 201);
+        $data['specialization'] = [
+            'specialization_id' => $specialization->id,
+            'specialization_name' => $specialization->name,
+        ];
+        return $this->successResponse('Specializations created successfully', $data, 201);
     }
 
     /**
@@ -71,10 +83,34 @@ class SpecializationController extends BaseController
         if(!$specialization = Specialization::find($id)){
             return $this->errorResponse('Specializations not found',404);
         }
-        $specialization->update([
-            'name' => $request->name,
+        $request->validate([
+            'name' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    // Format the name as UC first
+                    $formattedName = ucfirst(strtolower($value));
+
+                    // Check if the name already exists in the database, case-insensitively
+                    $existingSpecialization = \App\Models\Specialization::whereRaw('LOWER(name) = ?', [strtolower($formattedName)])->first();
+
+                    if ($existingSpecialization) {
+                        $fail($attribute.' is already taken.');
+                    }
+                },
+            ],
         ]);
-        return $this->successResponse('Specialization updated successfully', $specialization, 201);
+
+        $specialization_name = ucfirst(strtolower($request->name));
+        $specialization->update([
+            'name' => $specialization_name,
+        ]);
+        $data['specialization'] = [
+            'specialization_id' => $specialization->id,
+            'specialization_name' => $specialization->name,
+        ];
+
+        return $this->successResponse('Specialization updated successfully', $data);
 
 
 
